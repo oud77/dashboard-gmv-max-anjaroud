@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Analisis Bisnis Pro - Laporan Khusus Pemilik</title>
+    <title>Dashboard Analisis Bisnis Pro - Laporan Bulanan & Cetak</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* VARIABEL WARNA UTAMA */
@@ -37,13 +37,15 @@
 
         * {margin:0; padding:0; font-family: 'Segoe UI', Roboto, sans-serif; box-sizing: border-box; transition: background 0.3s, color 0.3s, border 0.3s;}
         body {background: var(--latar-utama); padding:30px; max-width:1400px; margin:0 auto; color: var(--teks-utama);}
-        .baris-atas {display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;}
+        .baris-atas {display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap: wrap; gap:10px;}
         .btn-tema {padding:10px 18px; border-radius:8px; border:1px solid var(--merah); background:transparent; color: var(--merah); font-size:14px; font-weight:bold; cursor:pointer; transition:0.2s;}
         .btn-tema:hover {background: var(--merah); color:white;}
+        .btn-cetak {padding:10px 18px; border-radius:8px; border:none; background: var(--biru); color:white; font-size:14px; font-weight:bold; cursor:pointer; transition:0.2s; display:flex; align-items:center; gap:6px;}
+        .btn-cetak:hover {background: #2563eb;}
         .header {text-align:center; margin-bottom:35px; border-bottom:1px solid var(--batas); padding-bottom:20px;}
         .header h1 {color: var(--merah); font-size:34px; margin-bottom:8px; letter-spacing:1px;}
         .header p {color: var(--teks-kedua); font-size:16px;}
-        .pilih-bulan {display:flex; justify-content:center; gap:10px; margin-bottom:25px;}
+        .pilih-bulan {display:flex; justify-content:center; gap:10px; margin-bottom:25px; flex-wrap: wrap;}
         .pilih-bulan select, .pilih-bulan button {padding:10px 15px; border-radius:8px; border:1px solid var(--batas); background: var(--latar-kartu); color: var(--teks-utama); font-size:15px;}
         .pilih-bulan button {background: var(--merah); border:none; color:white; cursor:pointer;}
         .grid {display:grid; grid-template-columns: 1fr 1.2fr; gap:25px; margin-bottom:25px;}
@@ -60,11 +62,17 @@
         .item:last-child {border-bottom:none;}
         .laba-utama {background:linear-gradient(135deg, #064e3b, #065f46); border:2px solid var(--hijau); color:white;}
         .tema-siang .laba-utama {background:linear-gradient(135deg, #ecfdf5, #d1fae5); color:#065f46;}
-        .laporan-owner {background: rgba(15, 23, 42, 0.5); border: 1px solid var(--merah); border-radius: 12px; padding: 18px; margin-top: 20px;}
-        .laporan-owner h4 {color: var(--merah); margin-bottom: 12px; font-size: 16px; display: flex; align-items: center; gap: 6px;}
-        .laporan-owner p {font-size: 14px; line-height: 1.7; margin-bottom: 8px; color: var(--teks-utama);}
-        .laporan-owner ul {padding-left: 20px; margin: 10px 0;}
-        .laporan-owner li {font-size: 14px; line-height: 1.7; margin-bottom: 6px; color: var(--teks-utama);}
+        .laporan-bulanan {background: rgba(15, 23, 42, 0.5); border: 1px solid var(--biru); border-radius: 12px; padding: 20px; margin-top: 20px;}
+        .laporan-bulanan h4 {color: var(--biru); margin-bottom: 15px; font-size: 18px; display: flex; align-items: center; gap: 6px;}
+        .laporan-bulanan h5 {color: var(--merah); margin: 15px 0 8px; font-size: 16px;}
+        .laporan-bulanan p {font-size: 14px; line-height: 1.7; margin-bottom: 8px; color: var(--teks-utama);}
+        .laporan-bulanan ul {padding-left: 22px; margin: 10px 0;}
+        .laporan-bulanan li {font-size: 14px; line-height: 1.7; margin-bottom: 6px; color: var(--teks-utama);}
+        .pemberitahuan {border-radius: 10px; padding: 14px; margin: 12px 0; font-size: 14px; border-left:4px solid;}
+        .pemberitahuan.info {background:rgba(59,130,246,0.1); border-color: var(--biru); color: var(--biru);}
+        .pemberitahuan.sukses {background:rgba(16,185,129,0.1); border-color: var(--hijau); color: var(--hijau);}
+        .pemberitahuan.peringatan {background:rgba(245,158,11,0.1); border-color: var(--kuning); color: #92400e;}
+        .pemberitahuan.penting {background:rgba(239,68,68,0.1); border-color: #ef4444; color: #991b1b;}
         .input-grup {margin-bottom:16px;}
         .input-grup label {display:block; margin-bottom:6px; font-size:14px;}
         .input-grup .keterangan {font-size:12px; color: var(--teks-kedua); margin-top:2px;}
@@ -84,26 +92,36 @@
         .judul-kalibrasi h2 {color: var(--merah); font-size:20px; margin-bottom:5px;}
         .judul-kalibrasi p {color: var(--teks-kedua); font-size:14px;}
         .analisis {border-radius:10px; padding:16px; margin-top:15px; font-size:15px; line-height:1.7;}
-        .sukses {background:rgba(16,185,129,0.1); border-left:4px solid var(--hijau); color: var(--hijau);}
-        .peringatan {background:rgba(245,158,11,0.1); border-left:4px solid var(--kuning); color: #92400e;}
-        .bahaya {background:rgba(239,68,68,0.1); border-left:4px solid #ef4444; color: #991b1b;}
         canvas {max-height:240px; margin-top:10px;}
         .tabel-bulan {width:100%; border-collapse: collapse; margin-top:10px; font-size:14px;}
         .tabel-bulan th, .tabel-bulan td {padding:8px; text-align:right; border-bottom:1px solid var(--batas);}
         .tabel-bulan th:first-child, .tabel-bulan td:first-child {text-align:left;}
         @media (max-width:1000px) {.grid, .grid-3 {grid-template-columns:1fr;}}
+
+        /* TAMPILAN KHUSUS CETAK */
+        @media print {
+            body {background: white; color: black; padding: 20px; max-width: 100%;}
+            .baris-atas, .pilih-bulan, .pembatas, .btn, .input-grup, canvas, .tabel-bulan td:last-child, .tabel-bulan th:last-child {display: none !important;}
+            .card, .laporan-bulanan {background: white; color: black; border: 1px solid #ccc; box-shadow: none;}
+            .laba-utama {background: #f0fdf4; color: black; border: 1px solid #10b981;}
+            .angka-besar {color: #1e293b;}
+            .naik {color: #166534;}
+            .turun {color: #dc2626;}
+            .pemberitahuan {border: 1px solid #ccc; color: black;}
+            * {color: black !important; border-color: #ccc !important;}
+        }
     </style>
 </head>
 <body>
 
 <div class="baris-atas">
-    <div></div>
     <button class="btn-tema" onclick="gantiTema()">🌙 / ☀️ Ganti Tema</button>
+    <button class="btn-cetak" onclick="window.print()">🖨️ Cetak Laporan Bulanan</button>
 </div>
 
 <div class="header">
     <h1>🚀 DASHBOARD ANALISIS BISNIS PRO</h1>
-    <p>Pengaturan Kalibrasi & Laporan Khusus Pemilik Toko</p>
+    <p>Laporan Bulanan, Analisis Pemilik & Cetak Dokumen</p>
 </div>
 
 <div class="pilih-bulan">
@@ -123,6 +141,13 @@
     <div class="card">
         <div class="label">Rata-rata ROAS</div>
         <div class="angka-besar" id="rata-roas-bulan">--</div>
+    </div>
+</div>
+
+<div class="grid-full">
+    <div class="laporan-bulanan" id="wadah-laporan-bulanan">
+        <h4>📑 Laporan Bulanan Lengkap</h4>
+        <div id="isi-laporan-bulanan">Pilih bulan lalu klik tombol "Tampilkan Bulan Ini" untuk melihat laporan lengkap.</div>
     </div>
 </div>
 
@@ -151,34 +176,34 @@
 
         <div class="input-grup">
             <label>Target ROAS Ideal <span class="nilai-range" style="color:#ec4899;">5.0x</span></label>
-            <input type="range" id="atur-target" min="1" max="10" step="0.1" value="5" oninput="document.querySelectorAll('.nilai-range')[1].textContent = this.value + 'x'">
+            <input type="range" id="atur-target" min="1" max="10" step="0.1" value="5" oninput="document.querySelectorAll('.nilai-range')[0].textContent = this.value + 'x'">
             <div class="keterangan">Standar aman pengembalian modal iklan GMV Max.</div>
         </div>
 
         <div class="input-grup">
             <label>Tingkat Retur COD & Batal <span class="nilai-range" style="color: var(--kuning);">2%</span></label>
-            <input type="range" id="atur-retur" min="0" max="20" value="2" oninput="document.querySelectorAll('.nilai-range')[2].textContent = this.value + '%'">
+            <input type="range" id="atur-retur" min="0" max="20" value="2" oninput="document.querySelectorAll('.nilai-range')[1].textContent = this.value + '%'">
             <div class="keterangan">Persentase barang gagal kirim / dibatalkan pembeli.</div>
         </div>
 
         <div class="input-grup">
             <label>Biaya Layanan/Admin Toko <span class="nilai-range" style="color: var(--biru);">15%</span></label>
-            <input type="range" id="atur-admin" min="0" max="30" value="15" oninput="document.querySelectorAll('.nilai-range')[3].textContent = this.value + '%'">
+            <input type="range" id="atur-admin" min="0" max="30" value="15" oninput="document.querySelectorAll('.nilai-range')[2].textContent = this.value + '%'">
             <div class="keterangan">Potongan langsung dari platform TikTok Shop.</div>
         </div>
 
         <div class="input-grup">
             <label>Komisi Kreator Afiliasi <span class="nilai-range" style="color: var(--ungu);">3%</span></label>
-            <input type="range" id="atur-afiliator" min="0" max="15" value="3" oninput="document.querySelectorAll('.nilai-range')[4].textContent = this.value + '%'">
+            <input type="range" id="atur-afiliator" min="0" max="15" value="3" oninput="document.querySelectorAll('.nilai-range')[3].textContent = this.value + '%'">
             <div class="keterangan">Estimasi komisi kreator dari traffic afiliasi GMV Max.</div>
         </div>
 
         <button class="btn btn-reset" onclick="resetDefault()">Reset ke Data Default</button>
         <button class="btn btn-utama" onclick="simpanPengaturan()">💾 Simpan Pengaturan</button>
-        <button class="btn btn-kedua" onclick="eksporLaporan()">⬇️ Ekspor Laporan Kalibrated (.csv)</button>
+        <button class="btn btn-kedua" onclick="eksporLaporan()">⬇️ Ekspor Data (.csv)</button>
     </div>
 
-    <!-- KOLOM KANAN: INPUT DATA & HASIL + LAPORAN PEMILIK -->
+    <!-- KOLOM KANAN: INPUT DATA & HASIL -->
     <div>
         <div class="card">
             <h3>📝 Masukkan Data Hari Ini (<span id="tanggal-hari-ini"></span>)</h3>
@@ -207,18 +232,11 @@
             </div>
             <div class="item"><span>ROAS</span><span id="hasil-roas">--</span></div>
         </div>
-        <div id="kotak-analisis"></div>
-
-        <!-- LAPORAN KHUSUS PEMILIK -->
-        <div id="laporan-pemilik" class="laporan-owner" style="display:none;">
-            <h4>📊 Laporan Khusus Pemilik Toko</h4>
-            <div id="isi-laporan-pemilik"></div>
-        </div>
     </div>
 </div>
 
 <div class="grid-full card">
-    <h3>📅 Data Harian Bulan Ini (Tgl 1 s.d. Akhir Bulan)</h3>
+    <h3>📅 Data Harian Bulan Ini</h3>
     <table class="tabel-bulan">
         <thead>
             <tr>
@@ -282,11 +300,10 @@ function resetDefault() {
     document.getElementById('atur-retur').value = 2;
     document.getElementById('atur-admin').value = 15;
     document.getElementById('atur-afiliator').value = 3;
-    document.querySelectorAll('.nilai-range')[0].textContent = '55%';
-    document.querySelectorAll('.nilai-range')[1].textContent = '5.0x';
-    document.querySelectorAll('.nilai-range')[2].textContent = '2%';
-    document.querySelectorAll('.nilai-range')[3].textContent = '15%';
-    document.querySelectorAll('.nilai-range')[4].textContent = '3%';
+    document.querySelectorAll('.nilai-range')[0].textContent = '5.0x';
+    document.querySelectorAll('.nilai-range')[1].textContent = '2%';
+    document.querySelectorAll('.nilai-range')[2].textContent = '15%';
+    document.querySelectorAll('.nilai-range')[3].textContent = '3%';
     alert('✅ Pengaturan dikembalikan ke nilai default!');
 }
 
@@ -315,110 +332,124 @@ function eksporLaporan() {
     const blob = new Blob([csv], {type:'text/csv'});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url; a.download = `Laporan_Kalibrasi_${bulanAktif}.csv`; a.click();
+    a.href = url; a.download = `Laporan_Bulanan_${bulanAktif}.csv`; a.click();
     URL.revokeObjectURL(url);
-    alert('✅ Laporan berhasil diunduh!');
+    alert('✅ Data berhasil diunduh!');
 }
 
-// Muat semua data saat buka
-window.onload = function() {
-    muatTema();
-    isiPilihanBulan();
-    const simpanan = JSON.parse(localStorage.getItem('pengaturan_kalibrasi') || '{}');
-    if (simpanan.adspend) document.getElementById('atur-adspend').value = simpanan.adspend;
-    if (simpanan.hpp_persen) {
-        document.getElementById('atur-hpp').value = simpanan.hpp_persen;
-        document.querySelectorAll('.nilai-range')[0].textContent = simpanan.hpp_persen + '%';
+// MUAT LAPORAN BULANAN KHUSUS PEMILIK
+function buatLaporanBulanan(bulan) {
+    const dataBulan = JSON.parse(localStorage.getItem(`data_bulan_${bulan}`) || '{}');
+    const semuaData = Object.values(dataBulan);
+    const isi = document.getElementById('isi-laporan-bulanan');
+
+    if (semuaData.length === 0) {
+        isi.innerHTML = `<p class="pemberitahuan info">📢 Belum ada data untuk bulan ini. Silakan masukkan data harian terlebih dahulu.</p>`;
+        return;
     }
-    if (simpanan.target) {
-        document.getElementById('atur-target').value = simpanan.target;
-        document.querySelectorAll('.nilai-range')[1].textContent = simpanan.target + 'x';
+
+    // Hitung ringkasan
+    const totalGmv = semuaData.reduce((sum, d) => sum + d.gmv, 0);
+    const totalIklan = semuaData.reduce((sum, d) => sum + d.iklan, 0);
+    const totalLaba = semuaData.reduce((sum, d) => sum + d.laba, 0);
+    const rataRoas = (semuaData.reduce((sum, d) => sum + Number(d.roas), 0) / semuaData.length).toFixed(1);
+    const hariUntung = semuaData.filter(d => d.laba > 0).length;
+    const hariRugi = semuaData.filter(d => d.laba <= 0).length;
+    const pengaturan = JSON.parse(localStorage.getItem('pengaturan_kalibrasi') || '{}');
+    const target = Number(pengaturan.target || 5);
+
+    // Buat isi laporan
+    let laporan = `
+        <h5>📊 Ringkasan Pencapaian Bulan ${bulan}</h5>
+        <div class="item"><span>Total Penjualan (GMV)</span><span>Rp ${totalGmv.toLocaleString('id-ID')}</span></div>
+        <div class="item"><span>Total Biaya Iklan</span><span>Rp ${totalIklan.toLocaleString('id-ID')}</span></div>
+        <div class="item"><span>Total Laba Bersih</span><span class="${totalLaba >=0 ? 'naik' : 'turun'}">Rp ${totalLaba.toLocaleString('id-ID')}</span></div>
+        <div class="item"><span>Rata-rata ROAS</span><span>${rataRoas}x</span></div>
+        <div class="item"><span>Hari Berjalan Untung</span><span>${hariUntung} hari</span></div>
+        <div class="item"><span>Hari Berjalan Rugi</span><span>${hariRugi} hari</span></div>
+        <div class="pembatas"></div>
+
+        <h5>📈 Analisis Performa Iklan & Bisnis</h5>
+    `;
+
+    // Analisis & Pemberitahuan
+    if (rataRoas >= target && totalLaba > 0) {
+        laporan += `
+            <div class="pemberitahuan sukses">✅ PERFORMA SANGAT BAGUS: Iklanmu sangat efisien, bisnis tumbuh sehat dan menguntungkan.</div>
+            <ul>
+                <li>Setiap Rp 1 iklan menghasilkan rata-rata Rp ${rataRoas} penjualan, melebihi target ${target}x</li>
+                <li>Keuntungan bersih bulan ini sangat baik untuk pengembangan usaha</li>
+                <li>Strategi yang digunakan sudah tepat sasaran</li>
+            </ul>
+            <h5>🚀 Langkah Pengembangan Bulan Depan</h5>
+            <ul>
+                <li>Tambahkan anggaran iklan secara bertahap hingga +25% untuk memperbesar jangkauan</li>
+                <li>Tambah variasi produk serupa yang laris manis</li>
+                <li>Siapkan stok lebih banyak untuk mengantisipasi lonjakan pesanan</li>
+                <li>Mulai buat konten organik agar tidak hanya bergantung pada iklan berbayar</li>
+            </ul>
+        `;
+    } else if (rataRoas >= 3 && totalLaba > 0) {
+        laporan += `
+            <div class="pemberitahuan peringatan">⚠️ BISNIS UNTUNG NAMUN PERLU DIPERBAIKI: Efisiensi iklan belum maksimal.</div>
+            <ul>
+                <li>ROAS rata-rata ${rataRoas}x masih di bawah target ideal ${target}x</li>
+                <li>Masih ada ruang untuk menghemat biaya iklan tanpa mengurangi penjualan</li>
+                <li>Sebagian hari belum berjalan dengan performa optimal</li>
+            </ul>
+            <h5>🛠️ Langkah Perbaikan Bulan Depan</h5>
+            <ul>
+                <li>Matikan iklan yang performanya terendah, fokus pada yang paling laris</li>
+                <li>Perbaiki foto/video produk dan deskripsi agar lebih menarik pembeli</li>
+                <li>Jangan tambah anggaran dulu sampai ROAS mendekati target</li>
+                <li>Evaluasi biaya HPP dan potongan biaya platform</li>
+            </ul>
+        `;
+    } else if (totalLaba > 0) {
+        laporan += `
+            <div class="pemberitahuan peringatan">⚠️ AMBANG BATAS KEUNTUNGAN: Keuntungan sangat tipis, berhati-hati.</div>
+            <ul>
+                <li>ROAS rata-rata hanya ${rataRoas}x, sangat dekat dengan titik impas</li>
+                <li>Jika ada kenaikan biaya sedikit saja, bisnis bisa langsung rugi</li>
+                <li>Pengeluaran iklan sudah cukup besar dibanding hasil penjualan</li>
+            </ul>
+            <h5>🛠️ Langkah Perbaikan Segera</h5>
+            <ul>
+                <li>Kurangi anggaran iklan sementara waktu</li>
+                <li>Cek kembali harga jual, apakah sudah cukup menutupi semua biaya?</li>
+                <li>Cari pemasok dengan harga lebih murah untuk menekan biaya HPP</li>
+                <li>Gunakan lebih banyak konten gratis untuk menarik pembeli</li>
+            </ul>
+        `;
+    } else {
+        laporan += `
+            <div class="pemberitahuan penting">❌ PERLU PERBAIKAN SEGERA: Bulan ini berjalan dengan kerugian.</div>
+            <ul>
+                <li>Total pengeluaran melebihi pendapatan yang diterima</li>
+                <li>ROAS rata-rata ${rataRoas}x belum cukup untuk menutupi biaya operasional</li>
+                <li>Perlu penyesuaian strategi agar tidak terus merugi</li>
+            </ul>
+            <h5>🚨 Langkah Darurat & Perbaikan</h5>
+            <ul>
+                <li>Hentikan sementara iklan sampai menemukan solusi yang tepat</li>
+                <li>Evaluasi semua biaya mulai dari harga beli hingga biaya iklan</li>
+                <li>Periksa kembali target audiens dan materi iklan yang digunakan</li>
+                <li>Buat perubahan rencana dan pantau hasilnya setiap hari</li>
+                <li>Fokus pada pelanggan lama untuk penjualan ulang tanpa biaya iklan besar</li>
+            </ul>
+        `;
     }
-    if (simpanan.retur) {
-        document.getElementById('atur-retur').value = simpanan.retur;
-        document.querySelectorAll('.nilai-range')[2].textContent = simpanan.retur + '%';
-    }
-    if (simpanan.admin_persen) {
-        document.getElementById('atur-admin').value = simpanan.admin_persen;
-        document.querySelectorAll('.nilai-range')[3].textContent = simpanan.admin_persen + '%';
-    }
-    if (simpanan.afiliator_persen) {
-        document.getElementById('atur-afiliator').value = simpanan.afiliator_persen;
-        document.querySelectorAll('.nilai-range')[4].textContent = simpanan.afiliator_persen + '%';
-    }
-    gantiBulan();
-};
+
+    isi.innerHTML = laporan;
+}
 
 // Ganti tampilan bulan
 function gantiBulan() {
     const bulanAktif = document.getElementById('pilih-bulan-aktif').value;
     tampilkanRingkasanBulan(bulanAktif);
+    buatLaporanBulanan(bulanAktif);
     tampilkanTabelBulan(bulanAktif);
     buatGrafikBulan(bulanAktif);
-}
-
-// BUAT LAPORAN KHUSUS PEMILIK
-function buatLaporanPemilik(gmv, iklan, laba, roas, target) {
-    const wadah = document.getElementById('laporan-pemilik');
-    const isi = document.getElementById('isi-laporan-pemilik');
-    wadah.style.display = 'block';
-
-    let teks = '';
-    if (laba > 0 && roas >= target) {
-        teks = `
-            <p><strong>✅ Kondisi Bisnis: SANGAT BAGUS & SEHAT</strong></p>
-            <p>Performa iklanmu sudah sangat efisien, setiap Rp 1 iklan menghasilkan Rp ${roas} penjualan dan masih menyisakan keuntungan bersih.</p>
-            <p><strong>📈 Langkah Perjalanan Bisnis Selanjutnya:</strong></p>
-            <ul>
-                <li>Tambahkan anggaran iklan secara bertahap (maksimal +20% per minggu) untuk memperbesar jangkauan</li>
-                <li>Fokus pada produk yang paling laris untuk meningkatkan volume penjualan</li>
-                <li>Siapkan stok lebih banyak dan variasi produk baru untuk mempertahankan momentum</li>
-                <li>Jaga kualitas layanan agar tingkat retur tetap rendah di angka 2%</li>
-                <li>Mulai bangun komunitas pelanggan agar penjualan tidak hanya bergantung pada iklan</li>
-            </ul>
-        `;
-    } else if (laba > 0 && roas >= 3 && roas < target) {
-        teks = `
-            <p><strong>⚠️ Kondisi Bisnis: MASIH UNTUNG, PERLU DIPERBAIKI</strong></p>
-            <p>Bisnis masih berjalan dengan untung, namun efisiensi iklan belum mencapai target ideal ${target}x. Masih ada ruang untuk menghemat biaya.</p>
-            <p><strong>📈 Langkah Perjalanan Bisnis Selanjutnya:</strong></p>
-            <ul>
-                <li>Tinjau kembali target audiens dan materi iklan yang kurang efektif</li>
-                <li>Prioritaskan iklan yang menghasilkan penjualan terbanyak, kurangi yang kurang berkinerja</li>
-                <li>Perbaiki deskripsi produk dan foto/video agar konversi meningkat</li>
-                <li>Jangan menambah anggaran dulu sampai ROAS mendekati target</li>
-                <li>Evaluasi biaya HPP dan layanan untuk menekan pengeluaran sekecil mungkin</li>
-            </ul>
-        `;
-    } else if (laba > 0 && roas < 3) {
-        teks = `
-            <p><strong>⚠️ Kondisi Bisnis: AMBANG BATAS, HATI-HATI</strong></p>
-            <p>Masih untung tapi sangat tipis. Jika ada kenaikan biaya sedikit saja, bisnis bisa langsung rugi.</p>
-            <p><strong>📈 Langkah Perjalanan Bisnis Selanjutnya:</strong></p>
-            <ul>
-                <li>Hentikan sementara iklan yang ROAS-nya di bawah 2x</li>
-                <li>Cek harga produk, apakah sudah sesuai dengan biaya yang dikeluarkan?</li>
-                <li>Cari pemasok baru untuk menekan biaya HPP</li>
-                <li>Kurangi frekuensi iklan dulu, fokus pada optimasi halaman produk</li>
-                <li>Gunakan lebih banyak konten organik untuk menghemat biaya iklan</li>
-            </ul>
-        `;
-    } else {
-        teks = `
-            <p><strong>❌ Kondisi Bisnis: SEDANG RUGI, PERLU DIPERBAIKI SEGERA</strong></p>
-            <p>Biaya yang dikeluarkan melebihi pendapatan. Jika terus berlanjut, bisnis akan terganggu keuangannya.</p>
-            <p><strong>📈 Langkah Perjalanan Bisnis Selanjutnya:</strong></p>
-            <ul>
-                <li>Kurangi atau hentikan sementara anggaran iklan sampai masalah ditemukan</li>
-                <li>Periksa kembali harga jual, biaya HPP, dan potongan biaya platform</li>
-                <li>Evaluasi materi iklan, apakah menargetkan orang yang tepat?</li>
-                <li>Perbaiki halaman produk agar pembeli lebih yakin membeli</li>
-                <li>Fokus pada pelanggan lama untuk penjualan ulang tanpa biaya iklan besar</li>
-                <li>Buat rencana perbaikan dalam 1-2 minggu ke depan sebelum menambah modal lagi</li>
-            </ul>
-        `;
-    }
-    isi.innerHTML = teks;
 }
 
 // Simpan data harian
@@ -429,10 +460,9 @@ function simpanDataHarian() {
     const iklan = Number(document.getElementById('input-iklan').value) || 0;
     const pesanan = Number(document.getElementById('input-pesanan').value) || 0;
     const pengaturan = JSON.parse(localStorage.getItem('pengaturan_kalibrasi') || '{}');
-    const p_hpp = Number(pengaturan.hpp_persen || document.getElementById('atur-hpp').value) || 55;
-    const p_admin = Number(pengaturan.admin_persen || document.getElementById('atur-admin').value) || 15;
-    const p_afiliator = Number(pengaturan.afiliator_persen || document.getElementById('atur-afiliator').value) || 3;
-    const target = Number(pengaturan.target || document.getElementById('atur-target').value) || 5;
+    const p_hpp = Number(pengaturan.hpp_persen || 55);
+    const p_admin = Number(pengaturan.admin_persen || 15);
+    const p_afiliator = Number(pengaturan.afiliator_persen || 3);
 
     // Hitung biaya
     const biayaHPP = gmv * p_hpp / 100;
@@ -448,20 +478,6 @@ function simpanDataHarian() {
     document.getElementById('hasil-total-biaya').innerText = `Rp ${totalBiaya.toLocaleString('id-ID')}`;
     document.getElementById('hasil-laba').innerText = `Rp ${laba.toLocaleString('id-ID')}`;
     document.getElementById('hasil-roas').innerText = `${roas}x`;
-
-    // Analisis umum
-    let analisis = '';
-    if (laba > 0 && roas >= target) {
-        analisis = `<div class="analisis sukses">✅ Bagus! Pertahankan strategi, bisa tambah anggaran iklan.</div>`;
-    } else if (laba > 0 && roas < target) {
-        analisis = `<div class="analisis peringatan">⚠️ Masih untung, tapi efisiensi iklan perlu ditingkatkan.</div>`;
-    } else {
-        analisis = `<div class="analisis bahaya">❌ Rugi, periksa biaya atau kurangi anggaran iklan.</div>`;
-    }
-    document.getElementById('kotak-analisis').innerHTML = analisis;
-
-    // TAMPILKAN LAPORAN KHUSUS PEMILIK
-    buatLaporanPemilik(gmv, iklan, laba, roas, target);
 
     // Simpan data
     let dataBulan = JSON.parse(localStorage.getItem(`data_bulan_${bulanAktif}`) || '{}');
@@ -552,6 +568,35 @@ function buatGrafikBulan(bulan) {
         }
     });
 }
+
+// Muat semua data saat buka
+window.onload = function() {
+    muatTema();
+    isiPilihanBulan();
+    const simpanan = JSON.parse(localStorage.getItem('pengaturan_kalibrasi') || '{}');
+    if (simpanan.adspend) document.getElementById('atur-adspend').value = simpanan.adspend;
+    if (simpanan.hpp_persen) {
+        document.getElementById('atur-hpp').value = simpanan.hpp_persen;
+        document.querySelectorAll('.nilai-range')[0].textContent = simpanan.hpp_persen + '%';
+    }
+    if (simpanan.target) {
+        document.getElementById('atur-target').value = simpanan.target;
+        document.querySelectorAll('.nilai-range')[0].textContent = simpanan.target + 'x';
+    }
+    if (simpanan.retur) {
+        document.getElementById('atur-retur').value = simpanan.retur;
+        document.querySelectorAll('.nilai-range')[1].textContent = simpanan.retur + '%';
+    }
+    if (simpanan.admin_persen) {
+        document.getElementById('atur-admin').value = simpanan.admin_persen;
+        document.querySelectorAll('.nilai-range')[2].textContent = simpanan.admin_persen + '%';
+    }
+    if (simpanan.afiliator_persen) {
+        document.getElementById('atur-afiliator').value = simpanan.afiliator_persen;
+        document.querySelectorAll('.nilai-range')[3].textContent = simpanan.afiliator_persen + '%';
+    }
+    gantiBulan();
+};
 </script>
 </body>
 </html>
