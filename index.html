@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Analisis Bisnis Pro - Sistem Tab</title>
+    <title>Dashboard Analisis Bisnis Pro - Pilih Tanggal Manual</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* VARIABEL WARNA UTAMA */
@@ -85,8 +85,10 @@
         .pemberitahuan.peringatan {background:rgba(245,158,11,0.1); border-color: var(--kuning); color: #92400e;}
         .pemberitahuan.penting {background:rgba(239,68,68,0.1); border-color: #ef4444; color: #991b1b;}
         .input-grup {margin-bottom:16px;}
-        .input-grup label {display:block; margin-bottom:6px; font-size:14px;}
+        .input-grup label {display:block; margin-bottom:6px; font-size:14px; font-weight:500;}
         .input-grup .keterangan {font-size:12px; color: var(--teks-kedua); margin-top:2px;}
+        .pilih-tanggal-baris {display:flex; gap:10px; flex-wrap:wrap;}
+        .pilih-tanggal-baris select {flex:1; min-width:100px; padding:10px; border:1px solid var(--batas); border-radius:8px; background: var(--latar-input); color: var(--teks-utama); font-size:15px;}
         input[type="number"] {width:100%; padding:10px 14px; border:1px solid var(--batas); border-radius:8px; font-size:15px; background: var(--latar-input); color: var(--teks-utama);}
         input[type="number"]:focus {outline:none; border-color: var(--merah); box-shadow:0 0 0 3px rgba(244,63,94,0.2);}
         input[type="range"] {width:100%; margin:8px 0;}
@@ -103,7 +105,7 @@
         .tabel-bulan {width:100%; border-collapse: collapse; margin-top:10px; font-size:14px;}
         .tabel-bulan th, .tabel-bulan td {padding:10px; text-align:right; border-bottom:1px solid var(--batas);}
         .tabel-bulan th:first-child, .tabel-bulan td:first-child {text-align:left;}
-        @media (max-width:768px) {.grid-3 {grid-template-columns:1fr;} body {padding:15px;}}
+        @media (max-width:768px) {.grid-3 {grid-template-columns:1fr;} body {padding:15px;} .pilih-tanggal-baris {flex-direction:column;}}
 
         /* TAMPILAN KHUSUS CETAK */
         @media print {
@@ -128,7 +130,7 @@
 
 <div class="header">
     <h1>🚀 DASHBOARD ANALISIS BISNIS PRO</h1>
-    <p>Sistem Tab Terpisah • Lebih Rapi & Mudah Digunakan</p>
+    <p>Pilih Tanggal Manual • Bisa Input Data Terlewat</p>
 </div>
 
 <div class="pilih-bulan">
@@ -170,7 +172,17 @@
 <!-- ISI TAB 2: INPUT DATA HARIAN -->
 <div id="tab-input" class="isi-tab">
     <div class="card">
-        <h3>📝 Masukkan Data Hari Ini (<span id="tanggal-hari-ini"></span>)</h3>
+        <h3>📝 Masukkan Data Penjualan</h3>
+        <div class="input-grup">
+            <label>Pilih Tanggal Pencatatan</label>
+            <div class="pilih-tanggal-baris">
+                <select id="pilih-tanggal"></select>
+                <select id="pilih-bulan-input"></select>
+                <select id="pilih-tahun"></select>
+            </div>
+            <div class="keterangan">Bisa memilih tanggal, bulan, atau tahun yang sudah terlewat</div>
+        </div>
+
         <div class="input-grup">
             <label>Total GMV (Rp)</label>
             <input type="number" id="input-gmv" placeholder="Contoh: 12450000">
@@ -183,11 +195,11 @@
             <label>Jumlah Pesanan</label>
             <input type="number" id="input-pesanan" placeholder="Contoh: 89">
         </div>
-        <button class="btn btn-utama" onclick="simpanDataHarian()">💾 Simpan & Analisis Sekarang</button>
+        <button class="btn btn-utama" onclick="simpanDataHarian()">💾 Simpan Data Sesuai Tanggal</button>
     </div>
 
     <div class="card laba-utama">
-        <h3>📋 Hasil Perhitungan Hari Ini</h3>
+        <h3>📋 Hasil Perhitungan</h3>
         <div class="item"><span>Total GMV</span><span id="hasil-gmv">Rp --</span></div>
         <div class="item"><span>Biaya Iklan</span><span id="hasil-iklan">Rp --</span></div>
         <div class="item"><span>Total Pengeluaran</span><span id="hasil-total-biaya">Rp --</span></div>
@@ -275,37 +287,75 @@
 <script>
 // FUNGSI PENGATURAN TAB
 function bukaTab(namaTab) {
-    // Sembunyikan semua isi tab
     document.querySelectorAll('.isi-tab').forEach(tab => tab.classList.remove('aktif'));
-    // Hapus status aktif tombol
     document.querySelectorAll('.tombol-tab').forEach(btn => btn.classList.remove('aktif'));
-    // Tampilkan tab yang dipilih
     document.getElementById(`tab-${namaTab}`).classList.add('aktif');
-    // Beri status aktif pada tombol
     event.target.classList.add('aktif');
 }
 
 // INISIALISASI TEMA OTOMATIS
 function muatTema() {
     const temaTersimpan = localStorage.getItem('tema_aplikasi');
-    if (temaTersimpan === 'siang') {
-        document.body.classList.add('tema-siang');
-    } else {
-        document.body.classList.remove('tema-siang');
-    }
+    temaTersimpan === 'siang' ? document.body.classList.add('tema-siang') : document.body.classList.remove('tema-siang');
 }
 function gantiTema() {
     document.body.classList.toggle('tema-siang');
-    const temaSekarang = document.body.classList.contains('tema-siang') ? 'siang' : 'malam';
-    localStorage.setItem('tema_aplikasi', temaSekarang);
+    localStorage.setItem('tema_aplikasi', document.body.classList.contains('tema-siang') ? 'siang' : 'malam');
 }
 
-// Inisialisasi data
+// Inisialisasi tanggal
 const sekarang = new Date();
+const tahunSekarang = sekarang.getFullYear();
 const bulanSekarang = `${sekarang.getFullYear()}-${String(sekarang.getMonth()+1).padStart(2,'0')}`;
-document.getElementById('tanggal-hari-ini').textContent = sekarang.toLocaleDateString('id-ID');
+const tanggalSekarang = sekarang.getDate();
 
-// Isi pilihan bulan
+// Isi pilihan tanggal manual
+function isiPilihanTanggal() {
+    const pilihTgl = document.getElementById('pilih-tanggal');
+    const pilihBulanIn = document.getElementById('pilih-bulan-input');
+    const pilihThn = document.getElementById('pilih-tahun');
+
+    // Tahun: 3 tahun lalu sampai 2 tahun depan
+    for (let t = tahunSekarang - 3; t <= tahunSekarang + 2; t++) {
+        const opsi = document.createElement('option');
+        opsi.value = t; opsi.textContent = t;
+        if (t === tahunSekarang) opsi.selected = true;
+        pilihThn.appendChild(opsi);
+    }
+
+    // Bulan
+    const namaBulan = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+    namaBulan.forEach((nm, i) => {
+        const opsi = document.createElement('option');
+        opsi.value = String(i+1).padStart(2,'0'); opsi.textContent = nm;
+        if (i === sekarang.getMonth()) opsi.selected = true;
+        pilihBulanIn.appendChild(opsi);
+    });
+
+    // Tanggal
+    updatePilihanTanggal();
+    pilihBulanIn.addEventListener('change', updatePilihanTanggal);
+    pilihThn.addEventListener('change', updatePilihanTanggal);
+}
+
+// Sesuaikan jumlah tanggal sesuai bulan & tahun
+function updatePilihanTanggal() {
+    const pilihTgl = document.getElementById('pilih-tanggal');
+    const bulan = Number(document.getElementById('pilih-bulan-input').value);
+    const tahun = Number(document.getElementById('pilih-tahun').value);
+    const jmlTgl = new Date(tahun, bulan, 0).getDate();
+    const simpanPilihan = pilihTgl.value || tanggalSekarang;
+    
+    pilihTgl.innerHTML = '';
+    for (let t = 1; t <= jmlTgl; t++) {
+        const opsi = document.createElement('option');
+        opsi.value = t; opsi.textContent = String(t).padStart(2,'0');
+        if (t === Number(simpanPilihan)) opsi.selected = true;
+        pilihTgl.appendChild(opsi);
+    }
+}
+
+// Isi pilihan bulan di atas
 function isiPilihanBulan() {
     const pilih = document.getElementById('pilih-bulan-aktif');
     pilih.innerHTML = '';
@@ -313,8 +363,7 @@ function isiPilihanBulan() {
     simpananBulan.push(bulanSekarang);
     [...new Set(simpananBulan)].sort().reverse().forEach(b => {
         const opsi = document.createElement('option');
-        opsi.value = b;
-        opsi.textContent = b;
+        opsi.value = b; opsi.textContent = b;
         if (b === bulanSekarang) opsi.selected = true;
         pilih.appendChild(opsi);
     });
@@ -372,11 +421,10 @@ function buatLaporanBulanan(bulan) {
     const isi = document.getElementById('isi-laporan-bulanan');
 
     if (semuaData.length === 0) {
-        isi.innerHTML = `<p class="pemberitahuan info">📢 Belum ada data untuk bulan ini. Silakan masukkan data harian di tab "Input Data Harian" terlebih dahulu.</p>`;
+        isi.innerHTML = `<p class="pemberitahuan info">📢 Belum ada data untuk bulan ini. Silakan masukkan data di tab "Input Data Harian".</p>`;
         return;
     }
 
-    // Hitung ringkasan
     const totalGmv = semuaData.reduce((sum, d) => sum + d.gmv, 0);
     const totalIklan = semuaData.reduce((sum, d) => sum + d.iklan, 0);
     const totalLaba = semuaData.reduce((sum, d) => sum + d.laba, 0);
@@ -386,7 +434,6 @@ function buatLaporanBulanan(bulan) {
     const pengaturan = JSON.parse(localStorage.getItem('pengaturan_kalibrasi') || '{}');
     const target = Number(pengaturan.target || 5);
 
-    // Buat isi laporan
     let laporan = `
         <h5>📊 Ringkasan Pencapaian Bulan ${bulan}</h5>
         <div class="item"><span>Total Penjualan (GMV)</span><span>Rp ${totalGmv.toLocaleString('id-ID')}</span></div>
@@ -396,78 +443,34 @@ function buatLaporanBulanan(bulan) {
         <div class="item"><span>Hari Berjalan Untung</span><span>${hariUntung} hari</span></div>
         <div class="item"><span>Hari Berjalan Rugi</span><span>${hariRugi} hari</span></div>
         <div class="pembatas"></div>
-
         <h5>📈 Analisis Performa Iklan & Bisnis</h5>
     `;
 
-    // Analisis & Pemberitahuan
     if (rataRoas >= target && totalLaba > 0) {
         laporan += `
-            <div class="pemberitahuan sukses">✅ PERFORMA SANGAT BAGUS: Iklanmu sangat efisien, bisnis tumbuh sehat dan menguntungkan.</div>
-            <ul>
-                <li>Setiap Rp 1 iklan menghasilkan rata-rata Rp ${rataRoas} penjualan, melebihi target ${target}x</li>
-                <li>Keuntungan bersih bulan ini sangat baik untuk pengembangan usaha</li>
-                <li>Strategi yang digunakan sudah tepat sasaran</li>
-            </ul>
-            <h5>🚀 Langkah Pengembangan Bulan Depan</h5>
-            <ul>
-                <li>Tambahkan anggaran iklan secara bertahap hingga +25% untuk memperbesar jangkauan</li>
-                <li>Tambah variasi produk serupa yang laris manis</li>
-                <li>Siapkan stok lebih banyak untuk mengantisipasi lonjakan pesanan</li>
-                <li>Mulai buat konten organik agar tidak hanya bergantung pada iklan berbayar</li>
-            </ul>
+            <div class="pemberitahuan sukses">✅ PERFORMA SANGAT BAGUS: Iklan efisien, bisnis tumbuh sehat.</div>
+            <ul><li>Setiap Rp 1 iklan hasilkan Rp ${rataRoas} penjualan, melebihi target ${target}x</li><li>Keuntungan baik untuk pengembangan usaha</li></ul>
+            <h5>🚀 Langkah Depan</h5><ul><li>Tambah anggaran iklan hingga +25%</li><li>Tambah variasi produk laris</li></ul>
         `;
     } else if (rataRoas >= 3 && totalLaba > 0) {
         laporan += `
-            <div class="pemberitahuan peringatan">⚠️ BISNIS UNTUNG NAMUN PERLU DIPERBAIKI: Efisiensi iklan belum maksimal.</div>
-            <ul>
-                <li>ROAS rata-rata ${rataRoas}x masih di bawah target ideal ${target}x</li>
-                <li>Masih ada ruang untuk menghemat biaya iklan tanpa mengurangi penjualan</li>
-                <li>Sebagian hari belum berjalan dengan performa optimal</li>
-            </ul>
-            <h5>🛠️ Langkah Perbaikan Bulan Depan</h5>
-            <ul>
-                <li>Matikan iklan yang performanya terendah, fokus pada yang paling laris</li>
-                <li>Perbaiki foto/video produk dan deskripsi agar lebih menarik pembeli</li>
-                <li>Jangan tambah anggaran dulu sampai ROAS mendekati target</li>
-                <li>Evaluasi biaya HPP dan potongan biaya platform</li>
-            </ul>
+            <div class="pemberitahuan peringatan">⚠️ UNTUNG NAMUN PERLU DIPERBAIKI: Efisiensi iklan belum maksimal.</div>
+            <ul><li>ROAS ${rataRoas}x masih di bawah target ${target}x</li></ul>
+            <h5>🛠️ Perbaikan</h5><ul><li>Matikan iklan performa rendah</li><li>Perbaiki materi promosi</li></ul>
         `;
     } else if (totalLaba > 0) {
         laporan += `
-            <div class="pemberitahuan peringatan">⚠️ AMBANG BATAS KEUNTUNGAN: Keuntungan sangat tipis, berhati-hati.</div>
-            <ul>
-                <li>ROAS rata-rata hanya ${rataRoas}x, sangat dekat dengan titik impas</li>
-                <li>Jika ada kenaikan biaya sedikit saja, bisnis bisa langsung rugi</li>
-                <li>Pengeluaran iklan sudah cukup besar dibanding hasil penjualan</li>
-            </ul>
-            <h5>🛠️ Langkah Perbaikan Segera</h5>
-            <ul>
-                <li>Kurangi anggaran iklan sementara waktu</li>
-                <li>Cek kembali harga jual, apakah sudah cukup menutupi semua biaya?</li>
-                <li>Cari pemasok dengan harga lebih murah untuk menekan biaya HPP</li>
-                <li>Gunakan lebih banyak konten gratis untuk menarik pembeli</li>
-            </ul>
+            <div class="pemberitahuan peringatan">⚠️ AMBANG BATAS: Keuntungan sangat tipis.</div>
+            <ul><li>ROAS ${rataRoas}x hampir titik impas</li></ul>
+            <h5>🛠️ Segera</h5><ul><li>Kurangi anggaran iklan sementara</li><li>Cek kembali harga jual</li></ul>
         `;
     } else {
         laporan += `
-            <div class="pemberitahuan penting">❌ PERLU PERBAIKAN SEGERA: Bulan ini berjalan dengan kerugian.</div>
-            <ul>
-                <li>Total pengeluaran melebihi pendapatan yang diterima</li>
-                <li>ROAS rata-rata ${rataRoas}x belum cukup untuk menutupi biaya operasional</li>
-                <li>Perlu penyesuaian strategi agar tidak terus merugi</li>
-            </ul>
-            <h5>🚨 Langkah Darurat & Perbaikan</h5>
-            <ul>
-                <li>Hentikan sementara iklan sampai menemukan solusi yang tepat</li>
-                <li>Evaluasi semua biaya mulai dari harga beli hingga biaya iklan</li>
-                <li>Periksa kembali target audiens dan materi iklan yang digunakan</li>
-                <li>Buat perubahan rencana dan pantau hasilnya setiap hari</li>
-                <li>Fokus pada pelanggan lama untuk penjualan ulang tanpa biaya iklan besar</li>
-            </ul>
+            <div class="pemberitahuan penting">❌ PERBAIKAN SEGERA: Bulan ini rugi.</div>
+            <ul><li>ROAS ${rataRoas}x belum cukup tutup biaya</li></ul>
+            <h5>🚨 Darurat</h5><ul><li>Hentikan iklan sementara</li><li>Evaluasi semua biaya</li></ul>
         `;
     }
-
     isi.innerHTML = laporan;
 }
 
@@ -480,10 +483,13 @@ function gantiBulan() {
     buatGrafikBulan(bulanAktif);
 }
 
-// Simpan data harian
+// Simpan data harian sesuai tanggal yang dipilih
 function simpanDataHarian() {
-    const bulanAktif = document.getElementById('pilih-bulan-aktif').value;
-    const tanggal = sekarang.getDate();
+    const tglPilih = Number(document.getElementById('pilih-tanggal').value);
+    const blnPilih = document.getElementById('pilih-bulan-input').value;
+    const thnPilih = document.getElementById('pilih-tahun').value;
+    const bulanData = `${thnPilih}-${blnPilih}`;
+
     const gmv = Number(document.getElementById('input-gmv').value) || 0;
     const iklan = Number(document.getElementById('input-iklan').value) || 0;
     const pesanan = Number(document.getElementById('input-pesanan').value) || 0;
@@ -492,7 +498,6 @@ function simpanDataHarian() {
     const p_admin = Number(pengaturan.admin_persen || 15);
     const p_afiliator = Number(pengaturan.afiliator_persen || 3);
 
-    // Hitung biaya
     const biayaHPP = gmv * p_hpp / 100;
     const biayaAdmin = gmv * p_admin / 100;
     const biayaAfiliator = gmv * p_afiliator / 100;
@@ -500,20 +505,19 @@ function simpanDataHarian() {
     const laba = gmv - totalBiaya;
     const roas = iklan > 0 ? (gmv / iklan).toFixed(1) : 0;
 
-    // Tampilkan hasil
     document.getElementById('hasil-gmv').innerText = `Rp ${gmv.toLocaleString('id-ID')}`;
     document.getElementById('hasil-iklan').innerText = `Rp ${iklan.toLocaleString('id-ID')}`;
     document.getElementById('hasil-total-biaya').innerText = `Rp ${totalBiaya.toLocaleString('id-ID')}`;
     document.getElementById('hasil-laba').innerText = `Rp ${laba.toLocaleString('id-ID')}`;
     document.getElementById('hasil-roas').innerText = `${roas}x`;
 
-    // Simpan data
-    let dataBulan = JSON.parse(localStorage.getItem(`data_bulan_${bulanAktif}`) || '{}');
-    dataBulan[tanggal] = { gmv, iklan, pesanan, laba, roas, tanggalSimpan: sekarang.toLocaleString('id-ID') };
-    localStorage.setItem(`data_bulan_${bulanAktif}`, JSON.stringify(dataBulan));
+    let dataBulan = JSON.parse(localStorage.getItem(`data_bulan_${bulanData}`) || '{}');
+    dataBulan[tglPilih] = { gmv, iklan, pesanan, laba, roas, tanggalSimpan: `${tglPilih}/${blnPilih}/${thnPilih}` };
+    localStorage.setItem(`data_bulan_${bulanData}`, JSON.stringify(dataBulan));
 
+    isiPilihanBulan();
     gantiBulan();
-    alert(`✅ Data tanggal ${tanggal} berhasil disimpan!`);
+    alert(`✅ Data tanggal ${tglPilih} ${blnPilih} ${thnPilih} berhasil disimpan!`);
 }
 
 // Ringkasan bulanan
@@ -537,10 +541,11 @@ function tampilkanRingkasanBulan(bulan) {
 
 // Tabel data harian
 function tampilkanTabelBulan(bulan) {
+    const [thn, bln] = bulan.split('-');
     const dataBulan = JSON.parse(localStorage.getItem(`data_bulan_${bulan}`) || '{}');
     const wadah = document.getElementById('tabel-data-bulan');
     wadah.innerHTML = '';
-    const jumlahHari = new Date(sekarang.getFullYear(), sekarang.getMonth()+1, 0).getDate();
+    const jumlahHari = new Date(thn, bln, 0).getDate();
     
     for (let tgl = 1; tgl <= jumlahHari; tgl++) {
         const data = dataBulan[tgl];
@@ -562,8 +567,9 @@ function tampilkanTabelBulan(bulan) {
 
 // Grafik bulanan
 function buatGrafikBulan(bulan) {
+    const [thn, bln] = bulan.split('-');
     const dataBulan = JSON.parse(localStorage.getItem(`data_bulan_${bulan}`) || '{}');
-    const jumlahHari = new Date(sekarang.getFullYear(), sekarang.getMonth()+1, 0).getDate();
+    const jumlahHari = new Date(thn, bln, 0).getDate();
     const label = [];
     const dataGmv = [];
     const dataLaba = [];
@@ -588,43 +594,22 @@ function buatGrafikBulan(bulan) {
                 { label: 'Laba Bersih', data: dataLaba, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', tension:0.3, fill:true, spanGaps: true }
             ]
         },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: { grid: { color: 'rgba(148,163,184,0.1)' } },
-                x: { grid: { display: false } }
-            }
-        }
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { grid: { color: 'rgba(148,163,184,0.1)' } }, x: { grid: { display: false } } } }
     });
 }
 
 // Muat semua data saat buka
 window.onload = function() {
     muatTema();
+    isiPilihanTanggal();
     isiPilihanBulan();
     const simpanan = JSON.parse(localStorage.getItem('pengaturan_kalibrasi') || '{}');
     if (simpanan.adspend) document.getElementById('atur-adspend').value = simpanan.adspend;
-    if (simpanan.hpp_persen) {
-        document.getElementById('atur-hpp').value = simpanan.hpp_persen;
-        document.querySelectorAll('.nilai-range')[0].textContent = simpanan.hpp_persen + '%';
-    }
-    if (simpanan.target) {
-        document.getElementById('atur-target').value = simpanan.target;
-        document.querySelectorAll('.nilai-range')[0].textContent = simpanan.target + 'x';
-    }
-    if (simpanan.retur) {
-        document.getElementById('atur-retur').value = simpanan.retur;
-        document.querySelectorAll('.nilai-range')[1].textContent = simpanan.retur + '%';
-    }
-    if (simpanan.admin_persen) {
-        document.getElementById('atur-admin').value = simpanan.admin_persen;
-        document.querySelectorAll('.nilai-range')[2].textContent = simpanan.admin_persen + '%';
-    }
-    if (simpanan.afiliator_persen) {
-        document.getElementById('atur-afiliator').value = simpanan.afiliator_persen;
-        document.querySelectorAll('.nilai-range')[3].textContent = simpanan.afiliator_persen + '%';
-    }
+    if (simpanan.hpp_persen) { document.getElementById('atur-hpp').value = simpanan.hpp_persen; document.querySelectorAll('.nilai-range')[0].textContent = simpanan.hpp_persen + '%'; }
+    if (simpanan.target) { document.getElementById('atur-target').value = simpanan.target; document.querySelectorAll('.nilai-range')[0].textContent = simpanan.target + 'x'; }
+    if (simpanan.retur) { document.getElementById('atur-retur').value = simpanan.retur; document.querySelectorAll('.nilai-range')[1].textContent = simpanan.retur + '%'; }
+    if (simpanan.admin_persen) { document.getElementById('atur-admin').value = simpanan.admin_persen; document.querySelectorAll('.nilai-range')[2].textContent = simpanan.admin_persen + '%'; }
+    if (simpanan.afiliator_persen) { document.getElementById('atur-afiliator').value = simpanan.afiliator_persen; document.querySelectorAll('.nilai-range')[3].textContent = simpanan.afiliator_persen + '%'; }
     gantiBulan();
 };
 </script>
