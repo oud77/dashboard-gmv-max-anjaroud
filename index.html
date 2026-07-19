@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Analisis Bisnis Pro - Input Manual Kalibrasi</title>
+    <title>Dashboard Analisis Bisnis Pro - HPP Rupiah</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -121,7 +121,7 @@
 </div>
 <div class="header">
     <h1>🚀 DASHBOARD ANALISIS BISNIS PRO</h1>
-    <p>Kalibrasi Input Manual • Bisa Pilih Tanggal Terlewat</p>
+    <p>HPP dalam Rupiah • Input Manual • Pilih Tanggal Terlewat</p>
 </div>
 <div class="pilih-bulan">
     <select id="pilih-bulan-aktif"></select>
@@ -174,7 +174,7 @@
             <input type="number" id="input-iklan" placeholder="Contoh: 2100000" min="0">
         </div>
         <div class="input-grup">
-            <label>Jumlah Pesanan</label>
+            <label>Jumlah Pesanan Terjual</label>
             <input type="number" id="input-pesanan" placeholder="Contoh: 89" min="0">
         </div>
         <button class="btn btn-utama" onclick="simpanDataHarian()">💾 Simpan Data Sesuai Tanggal</button>
@@ -183,6 +183,8 @@
         <h3>📋 Hasil Perhitungan</h3>
         <div class="item"><span>Total GMV</span><span id="hasil-gmv">Rp --</span></div>
         <div class="item"><span>Biaya Iklan</span><span id="hasil-iklan">Rp --</span></div>
+        <div class="item"><span>Total Modal Barang</span><span id="hasil-hpp">Rp --</span></div>
+        <div class="item"><span>Biaya Admin & Lainnya</span><span id="hasil-biaya-lain">Rp --</span></div>
         <div class="item"><span>Total Pengeluaran</span><span id="hasil-total-biaya">Rp --</span></div>
         <div class="item" style="font-weight:bold; padding-top:10px; border-top:2px solid var(--hijau);">
             <span>Laba Bersih</span><span id="hasil-laba">Rp --</span>
@@ -193,7 +195,7 @@
 <div id="tab-pengaturan" class="isi-tab">
     <div class="card">
         <h3>⚙️ Pengaturan Kalibrasi Bisnis</h3>
-        <p style="color:var(--teks-kedua); margin-bottom:15px;">Ketik angka persis sesuai kondisi toko Anda agar hitungan akurat.</p>
+        <p style="color:var(--teks-kedua); margin-bottom:15px;">Masukkan nilai sesuai kondisi toko Anda agar hitungan akurat.</p>
         <div class="pembatas"></div>
         <div class="input-grup">
             <label>Total Anggaran Iklan Bulanan (Rp)</label>
@@ -201,12 +203,9 @@
             <div class="keterangan">Contoh: 8212308 berarti Rp 8.212.308</div>
         </div>
         <div class="input-grup">
-            <label>Estimasi HPP / Biaya Barang (%)</label>
-            <div class="input-satuan">
-                <input type="number" id="atur-hpp" value="55" min="0" max="100" step="0.1" placeholder="0 - 100">
-                <span class="satuan">%</span>
-            </div>
-            <div class="keterangan">Persentase modal beli barang dari harga jual</div>
+            <label>Rata-rata Modal / HPP per Barang (Rp)</label>
+            <input type="number" id="atur-hpp" value="55000" min="0" placeholder="Contoh: 55000">
+            <div class="keterangan">Harga beli rata-rata satu produk sebelum dijual</div>
         </div>
         <div class="input-grup">
             <label>Target ROAS Ideal</label>
@@ -335,7 +334,7 @@ function isiPilihanBulan() {
 }
 function resetDefault() {
     document.getElementById('atur-adspend').value = 8212308;
-    document.getElementById('atur-hpp').value = 55;
+    document.getElementById('atur-hpp').value = 55000;
     document.getElementById('atur-target').value = 5;
     document.getElementById('atur-retur').value = 2;
     document.getElementById('atur-admin').value = 15;
@@ -345,7 +344,7 @@ function resetDefault() {
 function simpanPengaturan() {
     const pengaturan = {
         adspend: Number(document.getElementById('atur-adspend').value) || 0,
-        hpp_persen: Number(document.getElementById('atur-hpp').value) || 55,
+        hpp_satuan: Number(document.getElementById('atur-hpp').value) || 0,
         target: Number(document.getElementById('atur-target').value) || 5,
         retur: Number(document.getElementById('atur-retur').value) || 2,
         admin_persen: Number(document.getElementById('atur-admin').value) || 15,
@@ -422,23 +421,32 @@ function simpanDataHarian() {
     const iklan = Number(document.getElementById('input-iklan').value) || 0;
     const pesanan = Number(document.getElementById('input-pesanan').value) || 0;
     const pengaturan = JSON.parse(localStorage.getItem('pengaturan_kalibrasi') || '{}');
-    const p_hpp = Number(pengaturan.hpp_persen || 55);
+    const hppSatuan = Number(pengaturan.hpp_satuan || 55000);
     const p_admin = Number(pengaturan.admin_persen || 15);
     const p_afiliator = Number(pengaturan.afiliator_persen || 3);
-    const biayaHPP = gmv * p_hpp / 100;
+    
+    // Hitungan baru dengan HPP Rupiah
+    const totalHPP = pesanan * hppSatuan;
     const biayaAdmin = gmv * p_admin / 100;
     const biayaAfiliator = gmv * p_afiliator / 100;
-    const totalBiaya = iklan + biayaHPP + biayaAdmin + biayaAfiliator;
+    const totalBiaya = iklan + totalHPP + biayaAdmin + biayaAfiliator;
     const laba = gmv - totalBiaya;
     const roas = iklan > 0 ? (gmv / iklan).toFixed(1) : 0;
+
+    // Tampilkan rincian
     document.getElementById('hasil-gmv').innerText = `Rp ${gmv.toLocaleString('id-ID')}`;
     document.getElementById('hasil-iklan').innerText = `Rp ${iklan.toLocaleString('id-ID')}`;
+    document.getElementById('hasil-hpp').innerText = `Rp ${totalHPP.toLocaleString('id-ID')}`;
+    document.getElementById('hasil-biaya-lain').innerText = `Rp ${(biayaAdmin + biayaAfiliator).toLocaleString('id-ID')}`;
     document.getElementById('hasil-total-biaya').innerText = `Rp ${totalBiaya.toLocaleString('id-ID')}`;
     document.getElementById('hasil-laba').innerText = `Rp ${laba.toLocaleString('id-ID')}`;
     document.getElementById('hasil-roas').innerText = `${roas}x`;
+
+    // Simpan data
     let dataBulan = JSON.parse(localStorage.getItem(`data_bulan_${bulanData}`) || '{}');
-    dataBulan[tglPilih] = { gmv, iklan, pesanan, laba, roas, tanggalSimpan: `${tglPilih}/${blnPilih}/${thnPilih}` };
+    dataBulan[tglPilih] = { gmv, iklan, pesanan, laba, roas, totalHPP, tanggalSimpan: `${tglPilih}/${blnPilih}/${thnPilih}` };
     localStorage.setItem(`data_bulan_${bulanData}`, JSON.stringify(dataBulan));
+
     isiPilihanBulan();
     gantiBulan();
     alert(`✅ Data tanggal ${tglPilih} ${blnPilih} ${thnPilih} berhasil disimpan!`);
@@ -499,7 +507,7 @@ window.onload = function() {
     isiPilihanBulan();
     const simpanan = JSON.parse(localStorage.getItem('pengaturan_kalibrasi') || '{}');
     if (simpanan.adspend) document.getElementById('atur-adspend').value = simpanan.adspend;
-    if (simpanan.hpp_persen) document.getElementById('atur-hpp').value = simpanan.hpp_persen;
+    if (simpanan.hpp_satuan) document.getElementById('atur-hpp').value = simpanan.hpp_satuan;
     if (simpanan.target) document.getElementById('atur-target').value = simpanan.target;
     if (simpanan.retur) document.getElementById('atur-retur').value = simpanan.retur;
     if (simpanan.admin_persen) document.getElementById('atur-admin').value = simpanan.admin_persen;
