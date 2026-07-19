@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Analisis Bisnis Pro - Laporan Bulanan & Cetak</title>
+    <title>Dashboard Analisis Bisnis Pro - Sistem Tab</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* VARIABEL WARNA UTAMA */
@@ -21,6 +21,8 @@
             --hover: #e11d48;
             --latar-input: #0f172a;
             --bayangan: rgba(0,0,0,0.2);
+            --tab-aktif: #f43f5e;
+            --tab-nonaktif: #475569;
         }
         /* TEMA SIANG */
         .tema-siang {
@@ -33,26 +35,35 @@
             --hover: #be123c;
             --latar-input: #ffffff;
             --bayangan: rgba(0,0,0,0.05);
+            --tab-nonaktif: #cbd5e1;
         }
 
-        * {margin:0; padding:0; font-family: 'Segoe UI', Roboto, sans-serif; box-sizing: border-box; transition: background 0.3s, color 0.3s, border 0.3s;}
-        body {background: var(--latar-utama); padding:30px; max-width:1400px; margin:0 auto; color: var(--teks-utama);}
+        * {margin:0; padding:0; font-family: 'Segoe UI', Roboto, sans-serif; box-sizing: border-box; transition: background 0.2s, color 0.2s, border 0.2s;}
+        body {background: var(--latar-utama); padding:25px; max-width:1400px; margin:0 auto; color: var(--teks-utama);}
         .baris-atas {display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap: wrap; gap:10px;}
         .btn-tema {padding:10px 18px; border-radius:8px; border:1px solid var(--merah); background:transparent; color: var(--merah); font-size:14px; font-weight:bold; cursor:pointer; transition:0.2s;}
         .btn-tema:hover {background: var(--merah); color:white;}
         .btn-cetak {padding:10px 18px; border-radius:8px; border:none; background: var(--biru); color:white; font-size:14px; font-weight:bold; cursor:pointer; transition:0.2s; display:flex; align-items:center; gap:6px;}
         .btn-cetak:hover {background: #2563eb;}
-        .header {text-align:center; margin-bottom:35px; border-bottom:1px solid var(--batas); padding-bottom:20px;}
-        .header h1 {color: var(--merah); font-size:34px; margin-bottom:8px; letter-spacing:1px;}
-        .header p {color: var(--teks-kedua); font-size:16px;}
-        .pilih-bulan {display:flex; justify-content:center; gap:10px; margin-bottom:25px; flex-wrap: wrap;}
+        .header {text-align:center; margin-bottom:25px; border-bottom:1px solid var(--batas); padding-bottom:15px;}
+        .header h1 {color: var(--merah); font-size:32px; margin-bottom:5px; letter-spacing:1px;}
+        .header p {color: var(--teks-kedua); font-size:15px;}
+
+        /* GAYA SISTEM TAB */
+        .wadah-tab {display:flex; gap:8px; margin-bottom:20px; border-bottom:1px solid var(--batas); padding-bottom:10px; overflow-x:auto;}
+        .tombol-tab {padding:12px 20px; border:none; border-radius:8px 8px 0 0; background:transparent; color: var(--tab-nonaktif); font-size:15px; font-weight:bold; cursor:pointer; white-space:nowrap; transition:0.2s;}
+        .tombol-tab.aktif {background: var(--latar-kartu); color: var(--tab-aktif); border-bottom:2px solid var(--tab-aktif);}
+        .tombol-tab:hover {color: var(--tab-aktif);}
+        .isi-tab {display:none; animation: muncul 0.3s ease;}
+        .isi-tab.aktif {display:block;}
+        @keyframes muncul {from {opacity:0; transform:translateY(5px);} to {opacity:1; transform:translateY(0);}}
+
+        .pilih-bulan {display:flex; justify-content:center; gap:10px; margin-bottom:20px; flex-wrap: wrap;}
         .pilih-bulan select, .pilih-bulan button {padding:10px 15px; border-radius:8px; border:1px solid var(--batas); background: var(--latar-kartu); color: var(--teks-utama); font-size:15px;}
         .pilih-bulan button {background: var(--merah); border:none; color:white; cursor:pointer;}
-        .grid {display:grid; grid-template-columns: 1fr 1.2fr; gap:25px; margin-bottom:25px;}
-        .grid-3 {display:grid; grid-template-columns: repeat(3,1fr); gap:20px; margin-bottom:25px;}
-        .grid-full {grid-column: 1 / -1;}
-        .card {background: var(--latar-kartu); border-radius:16px; padding:24px; box-shadow:0 4px 20px var(--bayangan); border:1px solid var(--batas);}
-        .card h3 {color: var(--teks-utama); font-size:17px; margin-bottom:15px; display:flex; align-items:center; gap:8px;}
+        .grid-3 {display:grid; grid-template-columns: repeat(3,1fr); gap:20px; margin-bottom:20px;}
+        .card {background: var(--latar-kartu); border-radius:16px; padding:24px; box-shadow:0 4px 20px var(--bayangan); border:1px solid var(--batas); margin-bottom:20px;}
+        .card h3 {color: var(--teks-utama); font-size:18px; margin-bottom:15px; display:flex; align-items:center; gap:8px;}
         .angka-besar {font-size:36px; font-weight:800; margin:8px 0;}
         .naik {color: var(--hijau); display:flex; align-items:center; gap:5px;}
         .turun {color: #ef4444; display:flex; align-items:center; gap:5px;}
@@ -62,13 +73,13 @@
         .item:last-child {border-bottom:none;}
         .laba-utama {background:linear-gradient(135deg, #064e3b, #065f46); border:2px solid var(--hijau); color:white;}
         .tema-siang .laba-utama {background:linear-gradient(135deg, #ecfdf5, #d1fae5); color:#065f46;}
-        .laporan-bulanan {background: rgba(15, 23, 42, 0.5); border: 1px solid var(--biru); border-radius: 12px; padding: 20px; margin-top: 20px;}
+        .laporan-bulanan {background: rgba(15, 23, 42, 0.5); border: 1px solid var(--biru); border-radius: 12px; padding: 20px; margin-top:10px;}
         .laporan-bulanan h4 {color: var(--biru); margin-bottom: 15px; font-size: 18px; display: flex; align-items: center; gap: 6px;}
         .laporan-bulanan h5 {color: var(--merah); margin: 15px 0 8px; font-size: 16px;}
-        .laporan-bulanan p {font-size: 14px; line-height: 1.7; margin-bottom: 8px; color: var(--teks-utama);}
-        .laporan-bulanan ul {padding-left: 22px; margin: 10px 0;}
-        .laporan-bulanan li {font-size: 14px; line-height: 1.7; margin-bottom: 6px; color: var(--teks-utama);}
-        .pemberitahuan {border-radius: 10px; padding: 14px; margin: 12px 0; font-size: 14px; border-left:4px solid;}
+        .laporan-bulanan p {font-size:14px; line-height:1.7; margin-bottom:8px; color: var(--teks-utama);}
+        .laporan-bulanan ul {padding-left:22px; margin:10px 0;}
+        .laporan-bulanan li {font-size:14px; line-height:1.7; margin-bottom:6px; color: var(--teks-utama);}
+        .pemberitahuan {border-radius:10px; padding:14px; margin:12px 0; font-size:14px; border-left:4px solid;}
         .pemberitahuan.info {background:rgba(59,130,246,0.1); border-color: var(--biru); color: var(--biru);}
         .pemberitahuan.sukses {background:rgba(16,185,129,0.1); border-color: var(--hijau); color: var(--hijau);}
         .pemberitahuan.peringatan {background:rgba(245,158,11,0.1); border-color: var(--kuning); color: #92400e;}
@@ -88,20 +99,16 @@
         .tema-siang .btn-kedua:hover {background: #cbd5e1;}
         .btn-reset {background:transparent; border:1px solid var(--merah); color: var(--merah); margin-bottom:10px;}
         .btn-reset:hover {background:rgba(244,63,94,0.1);}
-        .judul-kalibrasi {text-align:center; margin-bottom:20px;}
-        .judul-kalibrasi h2 {color: var(--merah); font-size:20px; margin-bottom:5px;}
-        .judul-kalibrasi p {color: var(--teks-kedua); font-size:14px;}
-        .analisis {border-radius:10px; padding:16px; margin-top:15px; font-size:15px; line-height:1.7;}
-        canvas {max-height:240px; margin-top:10px;}
+        canvas {max-height:280px; margin-top:10px;}
         .tabel-bulan {width:100%; border-collapse: collapse; margin-top:10px; font-size:14px;}
-        .tabel-bulan th, .tabel-bulan td {padding:8px; text-align:right; border-bottom:1px solid var(--batas);}
+        .tabel-bulan th, .tabel-bulan td {padding:10px; text-align:right; border-bottom:1px solid var(--batas);}
         .tabel-bulan th:first-child, .tabel-bulan td:first-child {text-align:left;}
-        @media (max-width:1000px) {.grid, .grid-3 {grid-template-columns:1fr;}}
+        @media (max-width:768px) {.grid-3 {grid-template-columns:1fr;} body {padding:15px;}}
 
         /* TAMPILAN KHUSUS CETAK */
         @media print {
             body {background: white; color: black; padding: 20px; max-width: 100%;}
-            .baris-atas, .pilih-bulan, .pembatas, .btn, .input-grup, canvas, .tabel-bulan td:last-child, .tabel-bulan th:last-child {display: none !important;}
+            .baris-atas, .wadah-tab, .pilih-bulan, .pembatas, .btn, .input-grup, canvas {display: none !important;}
             .card, .laporan-bulanan {background: white; color: black; border: 1px solid #ccc; box-shadow: none;}
             .laba-utama {background: #f0fdf4; color: black; border: 1px solid #10b981;}
             .angka-besar {color: #1e293b;}
@@ -121,7 +128,7 @@
 
 <div class="header">
     <h1>🚀 DASHBOARD ANALISIS BISNIS PRO</h1>
-    <p>Laporan Bulanan, Analisis Pemilik & Cetak Dokumen</p>
+    <p>Sistem Tab Terpisah • Lebih Rapi & Mudah Digunakan</p>
 </div>
 
 <div class="pilih-bulan">
@@ -129,134 +136,155 @@
     <button onclick="gantiBulan()">🔄 Tampilkan Bulan Ini</button>
 </div>
 
-<div class="grid-3">
-    <div class="card">
-        <div class="label">Total GMV Bulan Ini</div>
-        <div class="angka-besar" id="total-gmv-bulan">Rp --</div>
-    </div>
-    <div class="card">
-        <div class="label">Total Laba Bersih</div>
-        <div class="angka-besar" id="total-laba-bulan">Rp --</div>
-    </div>
-    <div class="card">
-        <div class="label">Rata-rata ROAS</div>
-        <div class="angka-besar" id="rata-roas-bulan">--</div>
-    </div>
+<!-- SISTEM TAB -->
+<div class="wadah-tab">
+    <button class="tombol-tab aktif" onclick="bukaTab('ringkasan')">📊 Ringkasan Bulanan</button>
+    <button class="tombol-tab" onclick="bukaTab('input')">📝 Input Data Harian</button>
+    <button class="tombol-tab" onclick="bukaTab('pengaturan')">⚙️ Pengaturan Kalibrasi</button>
+    <button class="tombol-tab" onclick="bukaTab('data')">📅 Data & Grafik</button>
 </div>
 
-<div class="grid-full">
+<!-- ISI TAB 1: RINGKASAN BULANAN -->
+<div id="tab-ringkasan" class="isi-tab aktif">
+    <div class="grid-3">
+        <div class="card">
+            <div class="label">Total GMV Bulan Ini</div>
+            <div class="angka-besar" id="total-gmv-bulan">Rp --</div>
+        </div>
+        <div class="card">
+            <div class="label">Total Laba Bersih</div>
+            <div class="angka-besar" id="total-laba-bulan">Rp --</div>
+        </div>
+        <div class="card">
+            <div class="label">Rata-rata ROAS</div>
+            <div class="angka-besar" id="rata-roas-bulan">--</div>
+        </div>
+    </div>
+
     <div class="laporan-bulanan" id="wadah-laporan-bulanan">
-        <h4>📑 Laporan Bulanan Lengkap</h4>
+        <h4>📑 Laporan Lengkap & Analisis Pemilik</h4>
         <div id="isi-laporan-bulanan">Pilih bulan lalu klik tombol "Tampilkan Bulan Ini" untuk melihat laporan lengkap.</div>
     </div>
 </div>
 
-<div class="grid">
-    <!-- KOLOM KIRI: PENGATURAN KALIBRASI -->
+<!-- ISI TAB 2: INPUT DATA HARIAN -->
+<div id="tab-input" class="isi-tab">
     <div class="card">
-        <div class="judul-kalibrasi">
-            <h2>⚙️ PENGATURAN KALIBRASI</h2>
-            <p>Atur variabel untuk kalibrasi instan.</p>
+        <h3>📝 Masukkan Data Hari Ini (<span id="tanggal-hari-ini"></span>)</h3>
+        <div class="input-grup">
+            <label>Total GMV (Rp)</label>
+            <input type="number" id="input-gmv" placeholder="Contoh: 12450000">
         </div>
+        <div class="input-grup">
+            <label>Biaya Iklan GMV Max (Rp)</label>
+            <input type="number" id="input-iklan" placeholder="Contoh: 2100000">
+        </div>
+        <div class="input-grup">
+            <label>Jumlah Pesanan</label>
+            <input type="number" id="input-pesanan" placeholder="Contoh: 89">
+        </div>
+        <button class="btn btn-utama" onclick="simpanDataHarian()">💾 Simpan & Analisis Sekarang</button>
+    </div>
+
+    <div class="card laba-utama">
+        <h3>📋 Hasil Perhitungan Hari Ini</h3>
+        <div class="item"><span>Total GMV</span><span id="hasil-gmv">Rp --</span></div>
+        <div class="item"><span>Biaya Iklan</span><span id="hasil-iklan">Rp --</span></div>
+        <div class="item"><span>Total Pengeluaran</span><span id="hasil-total-biaya">Rp --</span></div>
+        <div class="item" style="font-weight:bold; padding-top:10px; border-top:2px solid var(--hijau);">
+            <span>Laba Bersih</span><span id="hasil-laba">Rp --</span>
+        </div>
+        <div class="item"><span>ROAS</span><span id="hasil-roas">--</span></div>
+    </div>
+</div>
+
+<!-- ISI TAB 3: PENGATURAN KALIBRASI -->
+<div id="tab-pengaturan" class="isi-tab">
+    <div class="card">
+        <h3>⚙️ Pengaturan Kalibrasi Bisnis</h3>
+        <p style="color:var(--teks-kedua); margin-bottom:15px;">Sesuaikan dengan kondisi toko Anda agar hitungan menjadi akurat.</p>
         <div class="pembatas"></div>
 
-        <h4 style="margin-bottom:15px; color: var(--merah);">VARIABEL TOKO (BULANAN)</h4>
-
         <div class="input-grup">
-            <label>Total Ad Spend Toko</label>
+            <label>Total Anggaran Iklan Bulanan (Rp)</label>
             <input type="number" id="atur-adspend" value="8212308">
             <div class="keterangan">Rp 8.212.308</div>
         </div>
 
         <div class="input-grup">
-            <label>Estimasi HPP / COGS (%) <span class="nilai-range">55%</span></label>
+            <label>Estimasi HPP / Biaya Barang (%) <span class="nilai-range">55%</span></label>
             <input type="range" id="atur-hpp" min="0" max="100" value="55" oninput="document.querySelector('.nilai-range').textContent = this.value + '%'">
-            <div class="keterangan">% rata-rata HPP dari total nilai penjualan.</div>
+            <div class="keterangan">Persentase modal beli barang dari harga jual.</div>
         </div>
 
         <div class="input-grup">
             <label>Target ROAS Ideal <span class="nilai-range" style="color:#ec4899;">5.0x</span></label>
             <input type="range" id="atur-target" min="1" max="10" step="0.1" value="5" oninput="document.querySelectorAll('.nilai-range')[0].textContent = this.value + 'x'">
-            <div class="keterangan">Standar aman pengembalian modal iklan GMV Max.</div>
+            <div class="keterangan">Standar aman pengembalian modal iklan.</div>
         </div>
 
         <div class="input-grup">
-            <label>Tingkat Retur COD & Batal <span class="nilai-range" style="color: var(--kuning);">2%</span></label>
+            <label>Tingkat Retur & Pembatalan <span class="nilai-range" style="color: var(--kuning);">2%</span></label>
             <input type="range" id="atur-retur" min="0" max="20" value="2" oninput="document.querySelectorAll('.nilai-range')[1].textContent = this.value + '%'">
-            <div class="keterangan">Persentase barang gagal kirim / dibatalkan pembeli.</div>
+            <div class="keterangan">Barang dikembalikan atau pesanan dibatalkan pembeli.</div>
         </div>
 
         <div class="input-grup">
-            <label>Biaya Layanan/Admin Toko <span class="nilai-range" style="color: var(--biru);">15%</span></label>
+            <label>Biaya Layanan Platform <span class="nilai-range" style="color: var(--biru);">15%</span></label>
             <input type="range" id="atur-admin" min="0" max="30" value="15" oninput="document.querySelectorAll('.nilai-range')[2].textContent = this.value + '%'">
-            <div class="keterangan">Potongan langsung dari platform TikTok Shop.</div>
+            <div class="keterangan">Potongan biaya admin TikTok Shop & layanan.</div>
         </div>
 
         <div class="input-grup">
             <label>Komisi Kreator Afiliasi <span class="nilai-range" style="color: var(--ungu);">3%</span></label>
             <input type="range" id="atur-afiliator" min="0" max="15" value="3" oninput="document.querySelectorAll('.nilai-range')[3].textContent = this.value + '%'">
-            <div class="keterangan">Estimasi komisi kreator dari traffic afiliasi GMV Max.</div>
+            <div class="keterangan">Biaya komisi untuk kreator yang mempromosikan produk.</div>
         </div>
 
-        <button class="btn btn-reset" onclick="resetDefault()">Reset ke Data Default</button>
-        <button class="btn btn-utama" onclick="simpanPengaturan()">💾 Simpan Pengaturan</button>
-        <button class="btn btn-kedua" onclick="eksporLaporan()">⬇️ Ekspor Data (.csv)</button>
-    </div>
-
-    <!-- KOLOM KANAN: INPUT DATA & HASIL -->
-    <div>
-        <div class="card">
-            <h3>📝 Masukkan Data Hari Ini (<span id="tanggal-hari-ini"></span>)</h3>
-            <div class="input-grup">
-                <label>Total GMV (Rp)</label>
-                <input type="number" id="input-gmv" placeholder="Contoh: 12450000">
-            </div>
-            <div class="input-grup">
-                <label>Biaya Iklan GMV Max (Rp)</label>
-                <input type="number" id="input-iklan" placeholder="Contoh: 2100000">
-            </div>
-            <div class="input-grup">
-                <label>Jumlah Pesanan</label>
-                <input type="number" id="input-pesanan" placeholder="Contoh: 89">
-            </div>
-            <button class="btn btn-utama" onclick="simpanDataHarian()">💾 Simpan & Analisis</button>
-        </div>
-
-        <div class="card laba-utama">
-            <h3>📋 Hasil Hari Ini</h3>
-            <div class="item"><span>Total GMV</span><span id="hasil-gmv">Rp --</span></div>
-            <div class="item"><span>Biaya Iklan</span><span id="hasil-iklan">Rp --</span></div>
-            <div class="item"><span>Total Pengeluaran</span><span id="hasil-total-biaya">Rp --</span></div>
-            <div class="item" style="font-weight:bold; padding-top:10px; border-top:2px solid var(--hijau);">
-                <span>Laba Bersih</span><span id="hasil-laba">Rp --</span>
-            </div>
-            <div class="item"><span>ROAS</span><span id="hasil-roas">--</span></div>
-        </div>
+        <div class="pembatas"></div>
+        <button class="btn btn-reset" onclick="resetDefault()">🔄 Kembalikan ke Pengaturan Awal</button>
+        <button class="btn btn-utama" onclick="simpanPengaturan()">💾 Simpan Semua Pengaturan</button>
+        <button class="btn btn-kedua" onclick="eksporLaporan()">⬇️ Unduh Data (.csv)</button>
     </div>
 </div>
 
-<div class="grid-full card">
-    <h3>📅 Data Harian Bulan Ini</h3>
-    <table class="tabel-bulan">
-        <thead>
-            <tr>
-                <th>Tanggal</th>
-                <th>GMV</th>
-                <th>Biaya Iklan</th>
-                <th>Laba Bersih</th>
-                <th>ROAS</th>
-            </tr>
-        </thead>
-        <tbody id="tabel-data-bulan"></tbody>
-    </table>
-</div>
+<!-- ISI TAB 4: DATA & GRAFIK -->
+<div id="tab-data" class="isi-tab">
+    <div class="card">
+        <h3>📅 Riwayat Data Harian Bulan Ini</h3>
+        <table class="tabel-bulan">
+            <thead>
+                <tr>
+                    <th>Tanggal</th>
+                    <th>GMV (Rp)</th>
+                    <th>Biaya Iklan (Rp)</th>
+                    <th>Laba Bersih (Rp)</th>
+                    <th>ROAS</th>
+                </tr>
+            </thead>
+            <tbody id="tabel-data-bulan"></tbody>
+        </table>
+    </div>
 
-<div class="grid-full card">
-    <h3>📈 Grafik Pergerakan Bulan Ini</h3>
-    <canvas id="grafik-bulan"></canvas>
+    <div class="card">
+        <h3>📈 Grafik Pergerakan Performa</h3>
+        <canvas id="grafik-bulan"></canvas>
+    </div>
 </div>
 
 <script>
+// FUNGSI PENGATURAN TAB
+function bukaTab(namaTab) {
+    // Sembunyikan semua isi tab
+    document.querySelectorAll('.isi-tab').forEach(tab => tab.classList.remove('aktif'));
+    // Hapus status aktif tombol
+    document.querySelectorAll('.tombol-tab').forEach(btn => btn.classList.remove('aktif'));
+    // Tampilkan tab yang dipilih
+    document.getElementById(`tab-${namaTab}`).classList.add('aktif');
+    // Beri status aktif pada tombol
+    event.target.classList.add('aktif');
+}
+
 // INISIALISASI TEMA OTOMATIS
 function muatTema() {
     const temaTersimpan = localStorage.getItem('tema_aplikasi');
@@ -304,7 +332,7 @@ function resetDefault() {
     document.querySelectorAll('.nilai-range')[1].textContent = '2%';
     document.querySelectorAll('.nilai-range')[2].textContent = '15%';
     document.querySelectorAll('.nilai-range')[3].textContent = '3%';
-    alert('✅ Pengaturan dikembalikan ke nilai default!');
+    alert('✅ Pengaturan dikembalikan ke nilai awal!');
 }
 
 // Simpan pengaturan kalibrasi
@@ -318,23 +346,23 @@ function simpanPengaturan() {
         afiliator_persen: Number(document.getElementById('atur-afiliator').value) || 3
     };
     localStorage.setItem('pengaturan_kalibrasi', JSON.stringify(pengaturan));
-    alert('✅ Pengaturan kalibrasi disimpan!');
+    alert('✅ Pengaturan berhasil disimpan!');
 }
 
 // Ekspor laporan CSV
 function eksporLaporan() {
     const bulanAktif = document.getElementById('pilih-bulan-aktif').value;
     const dataBulan = JSON.parse(localStorage.getItem(`data_bulan_${bulanAktif}`) || '{}');
-    let csv = "Tanggal,GMV,Biaya Iklan,Pesanan,Laba,ROAS\n";
+    let csv = "Tanggal,GMV,Biaya Iklan,Pesanan,Laba Bersih,ROAS\n";
     Object.entries(dataBulan).forEach(([tgl, d]) => {
         csv += `${tgl},${d.gmv},${d.iklan},${d.pesanan},${d.laba},${d.roas}\n`;
     });
-    const blob = new Blob([csv], {type:'text/csv'});
+    const blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url; a.download = `Laporan_Bulanan_${bulanAktif}.csv`; a.click();
+    a.href = url; a.download = `Data_Laporan_Bisnis_${bulanAktif}.csv`; a.click();
     URL.revokeObjectURL(url);
-    alert('✅ Data berhasil diunduh!');
+    alert('✅ File data berhasil diunduh!');
 }
 
 // MUAT LAPORAN BULANAN KHUSUS PEMILIK
@@ -344,7 +372,7 @@ function buatLaporanBulanan(bulan) {
     const isi = document.getElementById('isi-laporan-bulanan');
 
     if (semuaData.length === 0) {
-        isi.innerHTML = `<p class="pemberitahuan info">📢 Belum ada data untuk bulan ini. Silakan masukkan data harian terlebih dahulu.</p>`;
+        isi.innerHTML = `<p class="pemberitahuan info">📢 Belum ada data untuk bulan ini. Silakan masukkan data harian di tab "Input Data Harian" terlebih dahulu.</p>`;
         return;
     }
 
@@ -556,14 +584,16 @@ function buatGrafikBulan(bulan) {
         data: {
             labels: label,
             datasets: [
-                { label: 'GMV', data: dataGmv, borderColor: '#f43f5e', tension:0.3, spanGaps: true },
-                { label: 'Laba', data: dataLaba, borderColor: '#10b981', tension:0.3, spanGaps: true }
+                { label: 'GMV', data: dataGmv, borderColor: '#f43f5e', backgroundColor: 'rgba(244,63,94,0.1)', tension:0.3, fill:true, spanGaps: true },
+                { label: 'Laba Bersih', data: dataLaba, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', tension:0.3, fill:true, spanGaps: true }
             ]
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             scales: {
-                y: { grid: { color: '#334155' } }
+                y: { grid: { color: 'rgba(148,163,184,0.1)' } },
+                x: { grid: { display: false } }
             }
         }
     });
