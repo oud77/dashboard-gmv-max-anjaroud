@@ -483,10 +483,18 @@ document.getElementById('file-input').addEventListener('change', function(e) {
             
             dataDariFile = [];
             json.forEach(baris => {
-                let tglRaw = String(Object.values(baris)[idxTgl] || '');
-                let gmv = Number(String(Object.values(baris)[idxGmv] || '0').replace(/[^0-9]/g,'')) || 0;
-                let iklan = Number(String(Object.values(baris)[idxIklan] || '0').replace(/[^0-9]/g,'')) || 0;
-                let pesanan = Number(String(Object.values(baris)[idxPesanan] || '0').replace(/[^0-9]/g,'')) || 0;
+                let idxTgl = kolom.findIndex(k => 
+  k.includes('tanggal') || k.includes('date') || k.includes('waktu') || k.includes('per hari')
+);
+let idxGmv = kolom.findIndex(k => 
+  k.includes('gmv') || k.includes('penjualan') || k.includes('revenue') || k.includes('nilai') || k.includes('penghasilan bruto')
+);
+let idxIklan = kolom.findIndex(k => 
+  k.includes('iklan') || k.includes('spend') || k.includes('biaya') || k.includes('cost')
+);
+let idxPesanan = kolom.findIndex(k => 
+  k.includes('pesanan') || k.includes('order') || k.includes('jumlah') || k.includes('sku')
+);
                 
                 let tglObj = new Date(tglRaw);
                 if(isNaN(tglObj.getTime())) {
