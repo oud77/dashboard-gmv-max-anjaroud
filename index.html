@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard GMV Max TikTok - Versi Laptop</title>
+    <title>Dashboard GMV Max - Otomatis Praktis</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
     <style>
         * {margin:0; padding:0; font-family: 'Segoe UI', sans-serif; box-sizing: border-box;}
         body {background:#f0f2f5; padding:25px; max-width:1280px; margin:0 auto;}
         .header {text-align:center; margin-bottom:30px;}
         .header h1 {color:#fe2c55; font-size:30px; margin-bottom:8px;}
-        .header p {color:#666; font-size:15px;}
-        .tab {display:flex; gap:10px; margin-bottom:20px;}
+        .tab {display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap;}
         .tab-btn {padding:10px 20px; border:none; border-radius:8px; cursor:pointer; font-weight:500;}
         .tab-btn.active {background:#fe2c55; color:white;}
         .tab-btn:not(.active) {background:#e5e7eb; color:#333;}
@@ -31,6 +31,7 @@
         input {width:100%; padding:10px; border:1px solid #ddd; border-radius:6px; margin-bottom:12px; font-size:15px;}
         .sembunyi {display:none;}
         canvas {max-height:240px; margin-top:15px;}
+        .unggah {border:2px dashed #fe2c55; border-radius:10px; padding:25px; text-align:center; cursor:pointer; margin-bottom:15px;}
         @media (max-width:768px) {.grid {grid-template-columns:1fr;}}
     </style>
 </head>
@@ -38,106 +39,84 @@
 
 <div class="header">
     <h1>📊 DASHBOARD GMV MAX TIKTOK</h1>
-    <p>Data Harian & Analisis Keuntungan | Tampilan Khusus Laptop</p>
+    <p>Unggah File Laporan → Hitung Otomatis Tanpa Ketik Angka</p>
 </div>
 
 <div class="tab">
-    <button class="tab-btn active" onclick="bukaTab('dashboard')">📈 Dashboard</button>
-    <button class="tab-btn" onclick="bukaTab('input')">✏️ Masukkan Data</button>
-    <button class="tab-btn" onclick="bukaTab('pengaturan')">⚙️ Pengaturan Biaya</button>
+    <button class="tab-btn active" onclick="bukaTab('dashboard')">📈 Hasil Analisis</button>
+    <button class="tab-btn" onclick="bukaTab('unggah')">📂 Unggah Laporan</button>
+    <button class="tab-btn" onclick="bukaTab('pengaturan')">⚙️ Biaya & Target</button>
 </div>
 
-<!-- TAB DASHBOARD -->
+<!-- TAB HASIL -->
 <div id="tab-dashboard" class="isi-tab">
     <div class="grid">
         <div class="card">
             <div class="label">Total Pendapatan (GMV)</div>
-            <div class="angka-besar" id="nilai-gmv">Rp 12.450.000 <span class="naik">↑18%</span></div>
-
+            <div class="angka-besar" id="nilai-gmv">Rp --</div>
             <div class="label">Biaya Iklan GMV Max</div>
-            <div class="angka-besar" style="color:#ef4444;" id="nilai-iklan">Rp 2.100.000</div>
-
+            <div class="angka-besar" style="color:#ef4444;" id="nilai-iklan">Rp --</div>
             <div class="pembatas"></div>
-
             <div class="label">💰 LABA BERSIH SEBENARNYA</div>
-            <div class="angka-besar" style="color:#10b981;" id="nilai-laba">Rp 2.839.500</div>
-
+            <div class="angka-besar" style="color:#10b981;" id="nilai-laba">Rp --</div>
             <div class="pembatas"></div>
-
-            <div class="item"><span>Jumlah Pesanan</span><span id="nilai-pesanan">89 Pesanan</span></div>
-            <div class="item"><span>ROAS</span><span id="nilai-roas">5,9x</span></div>
-            <div class="item"><span>Rata-rata Belanja</span><span id="nilai-rata">Rp 139.887</span></div>
+            <div class="item"><span>Jumlah Pesanan</span><span id="nilai-pesanan">--</span></div>
+            <div class="item"><span>ROAS</span><span id="nilai-roas">--</span></div>
         </div>
-
         <div class="card">
             <h4>Rincian Biaya Dikurangi Otomatis</h4>
             <div class="pembatas"></div>
-            <div class="item"><span>Komisi TikTok (<span id="persen-tiktok">3</span>%)</span><span id="nilai-tiktok">Rp 373.500</span></div>
-            <div class="item"><span>Pajak (<span id="persen-pajak">1</span>%)</span><span id="nilai-pajak">Rp 124.500</span></div>
-            <div class="item"><span>Ongkir Ditanggung</span><span id="nilai-ongkir">Rp 890.000</span></div>
-            <div class="item"><span>Komisi Afiliator (<span id="persen-afiliator">5</span>%)</span><span id="nilai-afiliator">Rp 622.500</span></div>
-            <div class="item"><span>HPP Barang</span><span id="nilai-hpp">Rp 5.500.000</span></div>
-
-            <div class="notif" id="kotak-notif">
-                ✅ ROAS aman di atas target 3,5x<br>
-                ✅ Anggaran terpakai 92%, sisa cukup
-            </div>
+            <div class="item"><span>Komisi TikTok</span><span id="nilai-tiktok">Rp --</span></div>
+            <div class="item"><span>Pajak</span><span id="nilai-pajak">Rp --</span></div>
+            <div class="item"><span>Ongkir</span><span id="nilai-ongkir">Rp --</span></div>
+            <div class="item"><span>Komisi Afiliator</span><span id="nilai-afiliator">Rp --</span></div>
+            <div class="item"><span>HPP Barang</span><span id="nilai-hpp">Rp --</span></div>
+            <div class="notif" id="kotak-notif">Unggah file laporan GMV Max dulu ya!</div>
         </div>
     </div>
-
     <div class="card grid-full">
-        <h4>📈 Grafik Keuntungan 7 Hari Terakhir</h4>
-        <canvas id="grafikLaba"></canvas>
+        <h4>📈 Grafik Perkembangan</h4>
+        <canvas id="grafikData"></canvas>
     </div>
 </div>
 
-<!-- TAB MASUKKAN DATA -->
-<div id="tab-input" class="isi-tab sembunyi">
+<!-- TAB UNGGAH -->
+<div id="tab-unggah" class="isi-tab sembunyi">
     <div class="card">
-        <h4>✏️ Masukkan Data Hari Ini</h4>
+        <h4>📂 Unggah File Laporan GMV Max</h4>
         <div class="pembatas"></div>
-        <label class="label">Total GMV (Pendapatan Kotor)</label>
-        <input type="number" id="input-gmv" placeholder="Contoh: 12450000">
-        
-        <label class="label">Biaya Iklan GMV Max</label>
-        <input type="number" id="input-iklan" placeholder="Contoh: 2100000">
-        
-        <label class="label">Jumlah Pesanan</label>
-        <input type="number" id="input-pesanan" placeholder="Contoh: 89">
-        
-        <button class="btn btn-utama" onclick="hitungSemua()">🔄 Hitung & Perbarui Semua</button>
+        <div class="unggah" onclick="document.getElementById('file-laporan').click()">
+            <p style="font-size:16px; font-weight:500;">Klik di sini atau seret file laporan CSV/Excel</p>
+            <p style="font-size:13px; color:#666; margin-top:8px;">Ambil file dari TikTok Seller Center → GMV Max → Ekspor</p>
+            <input type="file" id="file-laporan" accept=".csv,.xlsx,.xls" style="display:none;" onchange="bacaFile(this)">
+        </div>
+        <button class="btn btn-utama" onclick="hitungContoh()">🔄 Coba Pakai Data Contoh Dulu</button>
     </div>
 </div>
 
-<!-- TAB PENGATURAN BIAYA -->
+<!-- TAB PENGATURAN -->
 <div id="tab-pengaturan" class="isi-tab sembunyi">
     <div class="card">
-        <h4>⚙️ Atur Biaya Tetap & Target</h4>
+        <h4>⚙️ Atur Biaya & Target Sekali Saja</h4>
         <div class="pembatas"></div>
         <label class="label">Komisi TikTok (%)</label>
         <input type="number" id="atur-tiktok" value="3">
-        
         <label class="label">Pajak (%)</label>
         <input type="number" id="atur-pajak" value="1">
-        
         <label class="label">Komisi Afiliator (%)</label>
         <input type="number" id="atur-afiliator" value="5">
-        
         <label class="label">Ongkir Rata-rata Harian</label>
         <input type="number" id="atur-ongkir" value="890000">
-        
         <label class="label">HPP Rata-rata Harian</label>
         <input type="number" id="atur-hpp" value="5500000">
-        
         <label class="label">Target ROAS Minimal</label>
         <input type="number" id="atur-target" value="3.5">
-        
         <button class="btn btn-utama" onclick="simpanPengaturan()">💾 Simpan Pengaturan</button>
     </div>
 </div>
 
 <script>
-// Fungsi Buka Tab
+// Fungsi dasar
 function bukaTab(nama) {
     document.querySelectorAll('.isi-tab').forEach(t => t.classList.add('sembunyi'));
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -145,76 +124,91 @@ function bukaTab(nama) {
     event.target.classList.add('active');
 }
 
-// Fungsi Hitung Semua
-function hitungSemua() {
-    const gmv = Number(document.getElementById('input-gmv').value) || 0;
-    const iklan = Number(document.getElementById('input-iklan').value) || 0;
-    const pesanan = Number(document.getElementById('input-pesanan').value) || 0;
-    
-    // Ambil pengaturan
-    const p_tiktok = Number(document.getElementById('atur-tiktok').value) || 0;
-    const p_pajak = Number(document.getElementById('atur-pajak').value) || 0;
-    const p_afiliator = Number(document.getElementById('atur-afiliator').value) || 0;
-    const ongkir = Number(document.getElementById('atur-ongkir').value) || 0;
-    const hpp = Number(document.getElementById('atur-hpp').value) || 0;
-    const target = Number(document.getElementById('atur-target').value) || 3;
+function simpanPengaturan() {
+    const pengaturan = {
+        tiktok: Number(document.getElementById('atur-tiktok').value) || 3,
+        pajak: Number(document.getElementById('atur-pajak').value) || 1,
+        afiliator: Number(document.getElementById('atur-afiliator').value) || 5,
+        ongkir: Number(document.getElementById('atur-ongkir').value) || 890000,
+        hpp: Number(document.getElementById('atur-hpp').value) || 5500000,
+        target: Number(document.getElementById('atur-target').value) || 3.5
+    };
+    localStorage.setItem('pengaturan', JSON.stringify(pengaturan));
+    alert('✅ Pengaturan tersimpan selamanya!');
+}
 
-    // Hitung rincian
+// Baca file laporan
+function bacaFile(input) {
+    const file = input.files[0];
+    if (!file) return;
+    Papa.parse(file, {
+        header: true,
+        complete: function(results) {
+            const data = results.data[0];
+            const gmv = Number(data['GMV'] || data['Total Pendapatan'] || 0);
+            const biayaIklan = Number(data['Biaya Iklan'] || data['Spend'] || 0);
+            const pesanan = Number(data['Pesanan'] || data['Orders'] || 0);
+            hitungSemua(gmv, biayaIklan, pesanan);
+            alert('✅ File berhasil dibaca! Hasil analisis siap dilihat.');
+        }
+    });
+}
+
+// Hitung semua angka
+function hitungSemua(gmv, biayaIklan, pesanan) {
+    const pengaturan = JSON.parse(localStorage.getItem('pengaturan') || '{}');
+    const p_tiktok = pengaturan.tiktok || 3;
+    const p_pajak = pengaturan.pajak || 1;
+    const p_afiliator = pengaturan.afiliator || 5;
+    const ongkir = pengaturan.ongkir || 890000;
+    const hpp = pengaturan.hpp || 5500000;
+    const target = pengaturan.target || 3.5;
+
     const biaya_tiktok = gmv * p_tiktok / 100;
     const biaya_pajak = gmv * p_pajak / 100;
     const biaya_afiliator = gmv * p_afiliator / 100;
-    const total_biaya = iklan + biaya_tiktok + biaya_pajak + biaya_afiliator + ongkir + hpp;
-    const laba = gmv - total_biaya;
-    const roas = iklan > 0 ? (gmv / iklan).toFixed(1) : 0;
-    const rata = pesanan > 0 ? Math.round(gmv / pesanan) : 0;
+    const totalBiaya = biayaIklan + biaya_tiktok + biaya_pajak + biaya_afiliator + ongkir + hpp;
+    const laba = gmv - totalBiaya;
+    const roas = biayaIklan > 0 ? (gmv / biayaIklan).toFixed(1) : 0;
 
     // Tampilkan hasil
-    document.getElementById('nilai-gmv').innerHTML = `Rp ${gmv.toLocaleString('id-ID')}`;
-    document.getElementById('nilai-iklan').innerText = `Rp ${iklan.toLocaleString('id-ID')}`;
+    document.getElementById('nilai-gmv').innerText = `Rp ${gmv.toLocaleString('id-ID')}`;
+    document.getElementById('nilai-iklan').innerText = `Rp ${biayaIklan.toLocaleString('id-ID')}`;
     document.getElementById('nilai-laba').innerText = `Rp ${laba.toLocaleString('id-ID')}`;
     document.getElementById('nilai-pesanan').innerText = `${pesanan} Pesanan`;
     document.getElementById('nilai-roas').innerText = `${roas}x`;
-    document.getElementById('nilai-rata').innerText = `Rp ${rata.toLocaleString('id-ID')}`;
-    
     document.getElementById('nilai-tiktok').innerText = `Rp ${biaya_tiktok.toLocaleString('id-ID')}`;
     document.getElementById('nilai-pajak').innerText = `Rp ${biaya_pajak.toLocaleString('id-ID')}`;
-    document.getElementById('nilai-afiliator').innerText = `Rp ${biaya_afiliator.toLocaleString('id-ID')}`;
     document.getElementById('nilai-ongkir').innerText = `Rp ${ongkir.toLocaleString('id-ID')}`;
+    document.getElementById('nilai-afiliator').innerText = `Rp ${biaya_afiliator.toLocaleString('id-ID')}`;
     document.getElementById('nilai-hpp').innerText = `Rp ${hpp.toLocaleString('id-ID')}`;
-    
+
     // Notifikasi
     let notif = '';
-    if (roas >= target) notif += `✅ ROAS aman di atas target ${target}x<br>`;
-    else notif += `⚠️ ROAS di bawah target ${target}x, periksa kampanye<br>`;
-    if (laba > 0) notif += '✅ Usaha masih untung';
-    else notif += '❌ Usaha rugi hari ini, kurangi anggaran';
+    notif += roas >= target ? `✅ ROAS aman di atas target ${target}x<br>` : `⚠️ ROAS di bawah target ${target}x<br>`;
+    notif += laba > 0 ? '✅ Usaha untung hari ini!' : '❌ Rugi, kurangi anggaran iklan sebentar';
     document.getElementById('kotak-notif').innerHTML = notif;
-
-    alert('✅ Data berhasil diperbarui!');
 }
 
-// Simpan pengaturan
-function simpanPengaturan() {
-    alert('✅ Pengaturan disimpan! Akan dipakai untuk perhitungan selanjutnya.');
+// Contoh data untuk coba
+function hitungContoh() {
+    hitungSemua(12450000, 2100000, 89);
+    bukaTab('dashboard');
 }
 
-// Grafik contoh
-const ctx = document.getElementById('grafikLaba').getContext('2d');
+// Grafik awal
+const ctx = document.getElementById('grafikData').getContext('2d');
 new Chart(ctx, {
     type: 'line',
     data: {
         labels: '12 Jul,13 Jul,14 Jul,15 Jul,16 Jul,17 Jul,18 Jul'.split(','),
-        datasets: [{
-            label: 'Laba Harian (Rp)',
-            data: [1900000, 2100000, 1850000, 2400000, 2600000, 2500000, 2839500],
-            borderColor: '#10b981',
-            backgroundColor: 'rgba(16,185,129,0.1)',
-            fill: true, tension: 0.3
-        }]
+        datasets: [
+            { label: 'GMV (Rp)', data: [10500000, 11200000, 10900000, 13000000, 13800000, 13500000, 12450000], borderColor: '#fe2c55', fill: false },
+            { label: 'Laba (Rp)', data: [1900000, 2100000, 1850000, 2400000, 2600000, 2500000, 2839500], borderColor: '#10b981', fill: false }
+        ]
     },
-    options: {responsive: true, plugins: {legend: {position: 'top'}}}
+    options: {responsive: true}
 });
 </script>
-
 </body>
 </html>
