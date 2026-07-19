@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Analisis Bisnis Pro - Tema Siang/Malam</title>
+    <title>Dashboard Analisis Bisnis Pro - Perbaikan Error</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* VARIABEL WARNA UTAMA */
@@ -462,11 +462,16 @@ function buatGrafikBulan(bulan) {
         data: {
             labels: label,
             datasets: [
-                { label: 'GMV', data: dataGmv, borderColor: var(--merah), tension:0.3, spanGaps: true },
-                { label: 'Laba', data: dataLaba, borderColor: var(--hijau), tension:0.3, spanGaps: true }
+                { label: 'GMV', data: dataGmv, borderColor: '#f43f5e', tension:0.3, spanGaps: true },
+                { label: 'Laba', data: dataLaba, borderColor: '#10b981', tension:0.3, spanGaps: true }
             ]
         },
-        options: {responsive: true, scales: {y: {grid: {color: var(--batas))}}}}
+        options: {
+            responsive: true,
+            scales: {
+                y: { grid: { color: '#334155' } }
+            }
+        }
     });
 }
 </script>
