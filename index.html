@@ -82,8 +82,8 @@
             <input type="number" id="atur-hpp" value="5500000">
         </div>
         <div class="input-grup">
-            <label class="label">Ongkir Ditanggung Harian (Rp)</label>
-            <input type="number" id="atur-ongkir" value="890000">
+            <label class="label">Biaya Admin Aplikasi Harian (Rp)</label>
+            <input type="number" id="atur-admin" value="250000">
         </div>
         <div class="input-grup">
             <label class="label">Target ROAS Minimal</label>
@@ -113,7 +113,7 @@
             <div class="item"><span>Komisi TikTok</span><span id="potong-tiktok">Rp --</span></div>
             <div class="item"><span>Pajak</span><span id="potong-pajak">Rp --</span></div>
             <div class="item"><span>Komisi Afiliator</span><span id="potong-afiliator">Rp --</span></div>
-            <div class="item"><span>Ongkir</span><span id="potong-ongkir">Rp --</span></div>
+            <div class="item"><span>Biaya Admin Aplikasi</span><span id="potong-admin">Rp --</span></div>
             <div class="item"><span>Modal Barang</span><span id="potong-hpp">Rp --</span></div>
         </div>
 
@@ -134,7 +134,7 @@ function simpanPengaturan() {
         pajak: Number(document.getElementById('atur-pajak').value) || 1,
         afiliator: Number(document.getElementById('atur-afiliator').value) || 5,
         hpp: Number(document.getElementById('atur-hpp').value) || 0,
-        ongkir: Number(document.getElementById('atur-ongkir').value) || 0,
+        admin: Number(document.getElementById('atur-admin').value) || 0,
         target: Number(document.getElementById('atur-target').value) || 3.5
     };
     localStorage.setItem('pengaturan_laba', JSON.stringify(pengaturan));
@@ -148,7 +148,7 @@ window.onload = function() {
     if (simpanan.pajak) document.getElementById('atur-pajak').value = simpanan.pajak;
     if (simpanan.afiliator) document.getElementById('atur-afiliator').value = simpanan.afiliator;
     if (simpanan.hpp) document.getElementById('atur-hpp').value = simpanan.hpp;
-    if (simpanan.ongkir) document.getElementById('atur-ongkir').value = simpanan.ongkir;
+    if (simpanan.admin) document.getElementById('atur-admin').value = simpanan.admin;
     if (simpanan.target) document.getElementById('atur-target').value = simpanan.target;
 };
 
@@ -165,14 +165,14 @@ function hitungSemua() {
     const p_pajak = Number(pengaturan.pajak || document.getElementById('atur-pajak').value) || 1;
     const p_afiliator = Number(pengaturan.afiliator || document.getElementById('atur-afiliator').value) || 5;
     const hpp = Number(pengaturan.hpp || document.getElementById('atur-hpp').value) || 0;
-    const ongkir = Number(pengaturan.ongkir || document.getElementById('atur-ongkir').value) || 0;
+    const admin = Number(pengaturan.admin || document.getElementById('atur-admin').value) || 0;
     const target = Number(pengaturan.target || document.getElementById('atur-target').value) || 3.5;
 
     // Hitung rincian
     const potongTikTok = gmv * p_tiktok / 100;
     const potongPajak = gmv * p_pajak / 100;
     const potongAfiliator = gmv * p_afiliator / 100;
-    const totalBiaya = biayaIklan + potongTikTok + potongPajak + potongAfiliator + ongkir + hpp;
+    const totalBiaya = biayaIklan + potongTikTok + potongPajak + potongAfiliator + admin + hpp;
     const labaBersih = gmv - totalBiaya;
     const roas = biayaIklan > 0 ? (gmv / biayaIklan).toFixed(1) : 0;
     const rataPesanan = pesanan > 0 ? Math.round(gmv / pesanan) : 0;
@@ -187,7 +187,7 @@ function hitungSemua() {
     document.getElementById('potong-tiktok').innerText = `Rp ${potongTikTok.toLocaleString('id-ID')}`;
     document.getElementById('potong-pajak').innerText = `Rp ${potongPajak.toLocaleString('id-ID')}`;
     document.getElementById('potong-afiliator').innerText = `Rp ${potongAfiliator.toLocaleString('id-ID')}`;
-    document.getElementById('potong-ongkir').innerText = `Rp ${ongkir.toLocaleString('id-ID')}`;
+    document.getElementById('potong-admin').innerText = `Rp ${admin.toLocaleString('id-ID')}`;
     document.getElementById('potong-hpp').innerText = `Rp ${hpp.toLocaleString('id-ID')}`;
 
     // Buat notifikasi saran
