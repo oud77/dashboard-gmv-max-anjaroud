@@ -337,6 +337,7 @@
 
 <script>
 let dataDariFile = [];
+let grafikBulan = null;
 
 function bukaTab(namaTab) {
     document.querySelectorAll('.isi-tab').forEach(tab => tab.classList.remove('aktif'));
@@ -444,7 +445,6 @@ function eksporLaporan() {
     alert('✅ File data berhasil diunduh!');
 }
 
-// === FUNGSI UNGGAH FILE EXCEL ===
 document.getElementById('file-input').addEventListener('change', function(e) {
     const file = e.target.files[0];
     if(!file) return;
@@ -470,7 +470,6 @@ document.getElementById('file-input').addEventListener('change', function(e) {
                 return;
             }
             
-            // Pencocokan kolom otomatis
             const kolom = Object.keys(json[0]).map(k => k.trim().toLowerCase());
             let idxTgl = kolom.findIndex(k => k.includes('tanggal') || k.includes('date') || k.includes('waktu'));
             let idxGmv = kolom.findIndex(k => k.includes('gmv') || k.includes('penjualan') || k.includes('revenue') || k.includes('nilai'));
@@ -482,7 +481,6 @@ document.getElementById('file-input').addEventListener('change', function(e) {
                 return;
             }
             
-            // Olah data
             dataDariFile = [];
             json.forEach(baris => {
                 let tglRaw = String(Object.values(baris)[idxTgl] || '');
@@ -490,7 +488,6 @@ document.getElementById('file-input').addEventListener('change', function(e) {
                 let iklan = Number(String(Object.values(baris)[idxIklan] || '0').replace(/[^0-9]/g,'')) || 0;
                 let pesanan = Number(String(Object.values(baris)[idxPesanan] || '0').replace(/[^0-9]/g,'')) || 0;
                 
-                // Parsing tanggal
                 let tglObj = new Date(tglRaw);
                 if(isNaN(tglObj.getTime())) {
                     const cocok = tglRaw.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
@@ -512,7 +509,6 @@ document.getElementById('file-input').addEventListener('change', function(e) {
                 return;
             }
             
-            // Tampilkan pratinjau
             info.innerHTML = `<div class="notifikasi sukses"><i class="fa fa-check-circle"></i> Berhasil membaca <strong>${dataDariFile.length}</strong> baris data!</div>`;
             pratinjau.style.display = 'block';
             btnSimpan.style.display = 'flex';
@@ -544,7 +540,6 @@ function simpanDataDariFile() {
         const bulan = d.bulan;
         let dataBulan = JSON.parse(localStorage.getItem(`data_bulan_${bulan}`) || '{}');
         
-        // Hitung otomatis
         const totalHPP = d.pesanan * hppSatuan;
         const biayaAdmin = d.gmv * pAdmin / 100;
         const biayaAfiliator = d.gmv * pAfiliator / 100;
@@ -552,7 +547,6 @@ function simpanDataDariFile() {
         const laba = d.gmv - totalBiaya;
         const roas = d.iklan > 0 ? (d.gmv / d.iklan).toFixed(1) : 0;
         
-        // Simpan / perbarui
         dataBulan[d.tgl] = { gmv: d.gmv, iklan: d.iklan, pesanan: d.pesanan, laba, roas };
         localStorage.setItem(`data_bulan_${bulan}`, JSON.stringify(dataBulan));
         totalDitambahkan++;
@@ -565,6 +559,56 @@ function simpanDataDariFile() {
     document.getElementById('info-file').innerHTML = '';
     isiPilihanBulan();
     gantiBulan();
+}
+
+function simpanDataHarian() {
+    const tgl = Number(document.getElementById('pilih-tanggal').value);
+    const bln = document.getElementById('pilih-bulan-input').value;
+    const thn = document.getElementById('pilih-tahun').value;
+    const bulan = `${thn}-${bln}`;
+    const gmv = Number(document.getElementById('input-gmv').value) || 0;
+    const iklan = Number(document.getElementById('input-iklan').value) || 0;
+    const pesanan = Number(document.getElementById('input-pesanan').value) || 0;
+    
+    if(gmv === 0 && iklan === 0 && pesanan === 0) {
+        alert('⚠️ Silakan isi setidaknya salah satu data sebelum menyimpan!');
+        return;
+    }
+    
+    const pengaturan = JSON.parse(localStorage.getItem('pengaturan_bisnis') || '{}');
+    const hppSatuan = Number(pengaturan.hpp_satuan || 55000);
+    const pAdmin = Number(pengaturan.admin_persen || 15);
+    const pAfiliator = Number(pengaturan.afiliator_persen || 3);
+    
+    const totalHPP = pesanan * hppSatuan;
+    const biayaAdmin = gmv * pAdmin / 100;
+    const biayaAfiliator = gmv * pAfiliator / 100;
+    const totalBiaya = iklan + totalHPP + biayaAdmin + biayaAfiliator;
+    const laba = gmv - totalBiaya;
+    const roas = iklan > 0 ? (gmv / iklan).toFixed(1) : 0;
+    
+    document.getElementById('hasil-gmv').innerText = `Rp ${gmv.toLocaleString('id-ID')}`;
+    document.getElementById('hasil-iklan').innerText = `Rp ${iklan.toLocaleString('id-ID')}`;
+    document.getElementById('hasil-hpp').innerText = `Rp ${totalHPP.toLocaleString('id-ID')}`;
+    document.getElementById('hasil-biaya-lain').innerText = `Rp ${(biayaAdmin + biayaAfiliator).toLocaleString('id-ID')}`;
+    document.getElementById('hasil-total-biaya').innerText = `Rp ${totalBiaya.toLocaleString('id-ID')}`;
+    document.getElementById('hasil-laba').innerText = `Rp ${laba.toLocaleString('id-ID')}`;
+    document.getElementById('hasil-roas').innerText = `${roas}x`;
+    
+    let dataBulan = JSON.parse(localStorage.getItem(`data_bulan_${bulan}`) || '{}');
+    dataBulan[tgl] = { gmv, iklan, pesanan, laba, roas };
+    localStorage.setItem(`data_bulan_${bulan}`, JSON.stringify(dataBulan));
+    
+    alert('✅ Data harian berhasil disimpan!');
+    isiPilihanBulan();
+    gantiBulan();
+}
+
+function gantiBulan() {
+    const bulan = document.getElementById('pilih-bulan-aktif').value;
+    buatLaporanBulanan(bulan);
+    buatTabelRiwayat(bulan);
+    buatGrafik(bulan);
 }
 
 function buatLaporanBulanan(bulan) {
@@ -587,20 +631,92 @@ function buatLaporanBulanan(bulan) {
     document.getElementById('total-gmv-bulan').innerText = `Rp ${totalGmv.toLocaleString('id-ID')}`;
     document.getElementById('total-laba-bulan').innerText = `Rp ${totalLaba.toLocaleString('id-ID')}`;
     document.getElementById('rata-roas-bulan').innerText = `${rataRoas}x`;
-    const trenLaba = document.getElementById('tren-laba');
-    trenLaba.className = `tren ${totalLaba >=0 ? 'naik' : 'turun'}`;
-    trenLaba.innerHTML = `<i class="fa fa-${totalLaba >=0 ? 'arrow-up' : 'arrow-down'}"></i> ${totalLaba >=0 ? 'Menguntungkan' : 'Merugi'}`;
+    
+    let isi = `<div class="laporan-subjudul">📊 Ringkasan Bulanan</div>`;
+    isi += `<div class="daftar-item"><span>
+    Total GMV</span><span>Rp ${totalGmv.toLocaleString('id-ID')}</span></div>`;
+    isi += `<div class="daftar-item"><span>Total Biaya Iklan</span><span>Rp ${totalIklan.toLocaleString('id-ID')}</span></div>`;
+    isi += `<div class="daftar-item"><span>Total Laba Bersih</span><span>Rp ${totalLaba.toLocaleString('id-ID')}</span></div>`;
+    isi += `<div class="daftar-item"><span>Rata-rata ROAS</span><span>${rataRoas}x</span></div>`;
+    isi += `<div class="daftar-item"><span>Hari Untung / Rugi</span><span>${untung} hari / ${rugi} hari</span></div>`;
 
-    let laporan = `
-        <div class="laporan-subjudul">📊 Ringkasan Pencapaian Bulan ${bulan}</div>
-        <div class="daftar-item"><span>Total Penjualan (GMV)</span><span>Rp ${totalGmv.toLocaleString('id-ID')}</span></div>
-        <div class="daftar-item"><span>Total Biaya Iklan</span><span>Rp ${totalIklan.toLocaleString('id-ID')}</span></div>
-        <div class="daftar-item"><span>Total Laba Bersih</span><span class="${totalLaba >=0 ? 'naik' : 'turun'}">Rp ${totalLaba.toLocaleString('id-ID')}</span></div>
-        <div class="daftar-item"><span>Rata-rata Efektivitas Iklan (ROAS)</span><span>${rataRoas}x</span></div>
-        <div class="daftar-item"><span>Hari Berhasil Untung</span><span>${untung} hari</span></div>
-        <div class="daftar-item"><span>Hari Mengalami Rugi</span><span>${rugi} hari</span></div>
-        <div class="pembatas"></div>
-        <div class="laporan-subjudul">📈 Analisis Cerdas & Rekomendasi</div>
-    `;
-    if (rataRoas >= target && totalLaba > 0) {
-        laporan += `<div class="notifikasi sukses"><i class="fa fa-check-circle"></i> <div><strong>Performa Sangat Luar Biasa!</strong><br>Iklan berjalan sangat efisien dan bisnis
+    isi += `<div class="laporan-subjudul">💡 Analisis & Saran</div>`;
+    if (rataRoas >= target) {
+        isi += `<div class="notifikasi sukses"><i class="fa fa-thumbs-up"></i> ROAS rata-rata sudah di atas target ${target}x! Strategi iklan sudah sangat efektif, pertahankan performa ini.</div>`;
+    } else if (rataRoas >= target * 0.8) {
+        isi += `<div class="notifikasi peringatan"><i class="fa fa-exclamation-triangle"></i> ROAS mendekati target ${target}x, coba optimalkan penargetan iklan agar lebih efisien.</div>`;
+    } else {
+        isi += `<div class="notifikasi bahaya"><i class="fa fa-times-circle"></i> ROAS masih jauh di bawah target ${target}x, sebaiknya evaluasi materi iklan atau penargetan audiens.</div>`;
+    }
+    if (totalLaba > 0) {
+        isi += `<div class="notifikasi sukses"><i class="fa fa-check-circle"></i> Secara keseluruhan bulan ini mendapatkan keuntungan positif, bagus!</div>`;
+    } else {
+        isi += `<div class="notifikasi bahaya"><i class="fa fa-times-circle"></i> Total laba bulan ini negatif, cek kembali biaya iklan dan harga jual produk.</div>`;
+    }
+
+    wadah.innerHTML = isi;
+}
+
+function buatTabelRiwayat(bulan) {
+    const data = JSON.parse(localStorage.getItem(`data_bulan_${bulan}`) || '{}');
+    const badanTabel = document.getElementById('tabel-data-bulan');
+    badanTabel.innerHTML = '';
+    
+    if (Object.keys(data).length === 0) {
+        badanTabel.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--teks-kedua); padding:20px;">Belum ada data harian untuk bulan ini</td></tr>`;
+        return;
+    }
+    
+    Object.keys(data).sort((a,b) => Number(a) - Number(b)).forEach(tgl => {
+        const d = data[tgl];
+        const baris = document.createElement('tr');
+        baris.innerHTML = `
+            <td>${String(tgl).padStart(2,'0')}/${bulan}</td>
+            <td>${d.gmv.toLocaleString('id-ID')}</td>
+            <td>${d.iklan.toLocaleString('id-ID')}</td>
+            <td style="color: ${d.laba >= 0 ? 'var(--sukses)' : 'var(--bahaya)'}">${d.laba.toLocaleString('id-ID')}</td>
+            <td>${d.roas}x</td>
+        `;
+        badanTabel.appendChild(baris);
+    });
+}
+
+function buatGrafik(bulan) {
+    const data = JSON.parse(localStorage.getItem(`data_bulan_${bulan}`) || '{}');
+    const ctx = document.getElementById('grafik-bulan').getContext('2d');
+    
+    if (grafikBulan) grafikBulan.destroy();
+    
+    const urutTgl = Object.keys(data).sort((a,b) => Number(a) - Number(b));
+    const label = urutTgl.map(t => `${String(t).padStart(2,'0')}`);
+    const dataGmv = urutTgl.map(t => data[t].gmv / 1000);
+    const dataLaba = urutTgl.map(t => data[t].laba / 1000);
+    const dataRoas = urutTgl.map(t => Number(data[t].roas));
+    
+    grafikBulan = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: label,
+            datasets: [
+                { label: 'GMV (Ribuan Rp)', data: dataGmv, borderColor: '#165DFF', backgroundColor: 'rgba(22,93,255,0.1)', tension: 0.3, fill: true },
+                { label: 'Laba Bersih (Ribuan Rp)', data: dataLaba, borderColor: '#00B42A', backgroundColor: 'rgba(0,180,42,0.1)', tension: 0.3, fill: true },
+                { label: 'ROAS (x)', data: dataRoas, borderColor: '#FF7D00', backgroundColor: 'transparent', tension: 0.3, yAxisID: 'y1' }
+            ]
+        },
+        options: {
+            responsive: true,
+            interaction: { mode: 'index', intersect: false },
+            scales: {
+                y: { type: 'linear', display: true, position: 'left', grid: { color: 'rgba(255,255,255,0.05)' } },
+                y1: { type: 'linear', display: true, position: 'right', min: 0, grid: { drawOnChartArea: false } },
+                x: { grid: { color: 'rgba(255,255,255,0.05)' } }
+            }
+        }
+    });
+}
+
+// Jalankan saat halaman dibuka
+muatTema();
+isiPilihanTanggal();
+isiPilihanBulan();
+</script>
