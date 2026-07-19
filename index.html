@@ -469,40 +469,49 @@ document.getElementById('file-input').addEventListener('change', function(e) {
                 info.innerHTML = `<div class="notifikasi bahaya"><i class="fa fa-times-circle"></i> File kosong atau format tidak sesuai!</div>`;
                 return;
             }
+
+            const kolomAsli = Object.keys(json[0]);
+            const kolom = kolomAsli.map(k => k.trim().toLowerCase());
+            console.log('Kolom terbaca:', kolomAsli);
             
-            const kolom = Object.keys(json[0]).map(k => k.trim().toLowerCase());
-            let idxTgl = kolom.findIndex(k => k.includes('tanggal') || k.includes('date') || k.includes('waktu'));
-            let idxGmv = kolom.findIndex(k => k.includes('gmv') || k.includes('penjualan') || k.includes('revenue') || k.includes('nilai'));
-            let idxIklan = kolom.findIndex(k => k.includes('iklan') || k.includes('spend') || k.includes('biaya') || k.includes('cost'));
-            let idxPesanan = kolom.findIndex(k => k.includes('pesanan') || k.includes('order') || k.includes('jumlah'));
-            
-            if(idxTgl === -1 || idxGmv === -1 || idxIklan === -1 || idxPesanan === -1) {
-                info.innerHTML = `<div class="notifikasi peringatan"><i class="fa fa-exclamation-triangle"></i> Tidak menemukan semua kolom yang dibutuhkan. Pastikan ada kolom Tanggal, GMV, Biaya Iklan, Pesanan.</div>`;
+            let idxTgl = kolom.findIndex(k => 
+                k.includes('tanggal') || k.includes('date') || k.includes('waktu') || k.includes('per hari')
+            );
+            let idxGmv = kolom.findIndex(k => 
+                k.includes('gmv') || k.includes('penjualan') || k.includes('revenue') || k.includes('nilai') || k.includes('penghasilan bruto')
+            );
+            let idxIklan = kolom.findIndex(k => 
+                k.includes('biaya') || k.includes('iklan') || k.includes('spend') || k.includes('cost')
+            );
+            let idxPesanan = kolom.findIndex(k => 
+                k.includes('pesanan') || k.includes('order') || k.includes('jumlah') || k.includes('sku')
+            );
+
+            const belumDitemukan = [];
+            if(idxTgl === -1) belumDitemukan.push('Tanggal/Per Hari');
+            if(idxGmv === -1) belumDitemukan.push('GMV/Penghasilan bruto');
+            if(idxIklan === -1) belumDitemukan.push('Biaya/Biaya Iklan');
+            if(idxPesanan === -1) belumDitemukan.push('Pesanan/Pesanan SKU');
+
+            if(belumDitemukan.length > 0) {
+                info.innerHTML = `<div class="notifikasi peringatan"><i class="fa fa-exclamation-triangle"></i> Tidak ditemukan kolom: <strong>${belumDitemukan.join(', ')}</strong>.<br>Kolom terbaca: ${kolomAsli.join(', ')}</div>`;
                 return;
             }
             
             dataDariFile = [];
             json.forEach(baris => {
-                let idxTgl = kolom.findIndex(k => 
-  k.includes('tanggal') || k.includes('date') || k.includes('waktu') || k.includes('per hari')
-);
-let idxGmv = kolom.findIndex(k => 
-  k.includes('gmv') || k.includes('penjualan') || k.includes('revenue') || k.includes('nilai') || k.includes('penghasilan bruto')
-);
-let idxIklan = kolom.findIndex(k => 
-  k.includes('iklan') || k.includes('spend') || k.includes('biaya') || k.includes('cost')
-);
-let idxPesanan = kolom.findIndex(k => 
-  k.includes('pesanan') || k.includes('order') || k.includes('jumlah') || k.includes('sku')
-);
+                let tglRaw = String(Object.values(baris)[idxTgl] || '');
+                let gmv = Number(String(Object.values(baris)[idxGmv] || '0').replace(/[^0-9]/g,'')) || 0;
+                let iklan = Number(String(Object.values(baris)[idxIklan] || '0').replace(/[^0-9]/g,'')) || 0;
+                let pesanan = Number(String(Object.values(baris)[idxPesanan] || '0').replace(/[^0-9]/g,'')) || 0;
                 
                 let tglObj = new Date(tglRaw);
                 if(isNaN(tglObj.getTime())) {
-                    const cocok = tglRaw.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
-                    if(cocok) tglObj = new Date(`${cocok[3]}-${cocok[2]}-${cocok[1]}`);
+                    const cocok = tglRaw.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+                    if(cocok) tglObj = new Date(`${cocok[1]}-${cocok[2]}-${cocok[3]}`);
                 }
                 
-                if(!isNaN(tglObj.getTime()) && gmv > 0) {
+                if(!isNaN(tglObj.getTime())) {
                     dataDariFile.push({
                         tanggal: tglObj,
                         tgl: tglObj.getDate(),
@@ -513,7 +522,7 @@ let idxPesanan = kolom.findIndex(k =>
             });
             
             if(dataDariFile.length === 0) {
-                info.innerHTML = `<div class="notifikasi bahaya"><i class="fa fa-times-circle"></i> Tidak ada data tanggal yang valid ditemukan!</div>`;
+                info.innerHTML = `<div class="notifikasi bahaya"><i class="fa fa-times-circle"></i> Tidak ada data tanggal yang valid!</div>`;
                 return;
             }
             
@@ -529,11 +538,12 @@ let idxPesanan = kolom.findIndex(k =>
             pratinjau.innerHTML = tabel;
             
         } catch(err) {
-            info.innerHTML = `<div class="notifikasi bahaya"><i class="fa fa-times-circle"></i> Gagal membaca file: ${err.message}</div>`;
+            info.innerHTML = `<div class="notifikasi bahaya"><i class="fa fa-times-circle"></i> Gagal: ${err.message}</div>`;
             console.error(err);
         }
     };
     pembaca.readAsArrayBuffer(file);
+});
 });
 
 function simpanDataDariFile() {
