@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Analisis Bisnis Pro - Perbaikan Error</title>
+    <title>Dashboard Analisis Bisnis Pro - Laporan Khusus Pemilik</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* VARIABEL WARNA UTAMA */
@@ -60,6 +60,11 @@
         .item:last-child {border-bottom:none;}
         .laba-utama {background:linear-gradient(135deg, #064e3b, #065f46); border:2px solid var(--hijau); color:white;}
         .tema-siang .laba-utama {background:linear-gradient(135deg, #ecfdf5, #d1fae5); color:#065f46;}
+        .laporan-owner {background: rgba(15, 23, 42, 0.5); border: 1px solid var(--merah); border-radius: 12px; padding: 18px; margin-top: 20px;}
+        .laporan-owner h4 {color: var(--merah); margin-bottom: 12px; font-size: 16px; display: flex; align-items: center; gap: 6px;}
+        .laporan-owner p {font-size: 14px; line-height: 1.7; margin-bottom: 8px; color: var(--teks-utama);}
+        .laporan-owner ul {padding-left: 20px; margin: 10px 0;}
+        .laporan-owner li {font-size: 14px; line-height: 1.7; margin-bottom: 6px; color: var(--teks-utama);}
         .input-grup {margin-bottom:16px;}
         .input-grup label {display:block; margin-bottom:6px; font-size:14px;}
         .input-grup .keterangan {font-size:12px; color: var(--teks-kedua); margin-top:2px;}
@@ -98,7 +103,7 @@
 
 <div class="header">
     <h1>🚀 DASHBOARD ANALISIS BISNIS PRO</h1>
-    <p>Pengaturan Kalibrasi & Penyimpanan Data Lengkap</p>
+    <p>Pengaturan Kalibrasi & Laporan Khusus Pemilik Toko</p>
 </div>
 
 <div class="pilih-bulan">
@@ -173,7 +178,7 @@
         <button class="btn btn-kedua" onclick="eksporLaporan()">⬇️ Ekspor Laporan Kalibrated (.csv)</button>
     </div>
 
-    <!-- KOLOM KANAN: INPUT DATA & HASIL -->
+    <!-- KOLOM KANAN: INPUT DATA & HASIL + LAPORAN PEMILIK -->
     <div>
         <div class="card">
             <h3>📝 Masukkan Data Hari Ini (<span id="tanggal-hari-ini"></span>)</h3>
@@ -203,6 +208,12 @@
             <div class="item"><span>ROAS</span><span id="hasil-roas">--</span></div>
         </div>
         <div id="kotak-analisis"></div>
+
+        <!-- LAPORAN KHUSUS PEMILIK -->
+        <div id="laporan-pemilik" class="laporan-owner" style="display:none;">
+            <h4>📊 Laporan Khusus Pemilik Toko</h4>
+            <div id="isi-laporan-pemilik"></div>
+        </div>
     </div>
 </div>
 
@@ -346,6 +357,70 @@ function gantiBulan() {
     buatGrafikBulan(bulanAktif);
 }
 
+// BUAT LAPORAN KHUSUS PEMILIK
+function buatLaporanPemilik(gmv, iklan, laba, roas, target) {
+    const wadah = document.getElementById('laporan-pemilik');
+    const isi = document.getElementById('isi-laporan-pemilik');
+    wadah.style.display = 'block';
+
+    let teks = '';
+    if (laba > 0 && roas >= target) {
+        teks = `
+            <p><strong>✅ Kondisi Bisnis: SANGAT BAGUS & SEHAT</strong></p>
+            <p>Performa iklanmu sudah sangat efisien, setiap Rp 1 iklan menghasilkan Rp ${roas} penjualan dan masih menyisakan keuntungan bersih.</p>
+            <p><strong>📈 Langkah Perjalanan Bisnis Selanjutnya:</strong></p>
+            <ul>
+                <li>Tambahkan anggaran iklan secara bertahap (maksimal +20% per minggu) untuk memperbesar jangkauan</li>
+                <li>Fokus pada produk yang paling laris untuk meningkatkan volume penjualan</li>
+                <li>Siapkan stok lebih banyak dan variasi produk baru untuk mempertahankan momentum</li>
+                <li>Jaga kualitas layanan agar tingkat retur tetap rendah di angka 2%</li>
+                <li>Mulai bangun komunitas pelanggan agar penjualan tidak hanya bergantung pada iklan</li>
+            </ul>
+        `;
+    } else if (laba > 0 && roas >= 3 && roas < target) {
+        teks = `
+            <p><strong>⚠️ Kondisi Bisnis: MASIH UNTUNG, PERLU DIPERBAIKI</strong></p>
+            <p>Bisnis masih berjalan dengan untung, namun efisiensi iklan belum mencapai target ideal ${target}x. Masih ada ruang untuk menghemat biaya.</p>
+            <p><strong>📈 Langkah Perjalanan Bisnis Selanjutnya:</strong></p>
+            <ul>
+                <li>Tinjau kembali target audiens dan materi iklan yang kurang efektif</li>
+                <li>Prioritaskan iklan yang menghasilkan penjualan terbanyak, kurangi yang kurang berkinerja</li>
+                <li>Perbaiki deskripsi produk dan foto/video agar konversi meningkat</li>
+                <li>Jangan menambah anggaran dulu sampai ROAS mendekati target</li>
+                <li>Evaluasi biaya HPP dan layanan untuk menekan pengeluaran sekecil mungkin</li>
+            </ul>
+        `;
+    } else if (laba > 0 && roas < 3) {
+        teks = `
+            <p><strong>⚠️ Kondisi Bisnis: AMBANG BATAS, HATI-HATI</strong></p>
+            <p>Masih untung tapi sangat tipis. Jika ada kenaikan biaya sedikit saja, bisnis bisa langsung rugi.</p>
+            <p><strong>📈 Langkah Perjalanan Bisnis Selanjutnya:</strong></p>
+            <ul>
+                <li>Hentikan sementara iklan yang ROAS-nya di bawah 2x</li>
+                <li>Cek harga produk, apakah sudah sesuai dengan biaya yang dikeluarkan?</li>
+                <li>Cari pemasok baru untuk menekan biaya HPP</li>
+                <li>Kurangi frekuensi iklan dulu, fokus pada optimasi halaman produk</li>
+                <li>Gunakan lebih banyak konten organik untuk menghemat biaya iklan</li>
+            </ul>
+        `;
+    } else {
+        teks = `
+            <p><strong>❌ Kondisi Bisnis: SEDANG RUGI, PERLU DIPERBAIKI SEGERA</strong></p>
+            <p>Biaya yang dikeluarkan melebihi pendapatan. Jika terus berlanjut, bisnis akan terganggu keuangannya.</p>
+            <p><strong>📈 Langkah Perjalanan Bisnis Selanjutnya:</strong></p>
+            <ul>
+                <li>Kurangi atau hentikan sementara anggaran iklan sampai masalah ditemukan</li>
+                <li>Periksa kembali harga jual, biaya HPP, dan potongan biaya platform</li>
+                <li>Evaluasi materi iklan, apakah menargetkan orang yang tepat?</li>
+                <li>Perbaiki halaman produk agar pembeli lebih yakin membeli</li>
+                <li>Fokus pada pelanggan lama untuk penjualan ulang tanpa biaya iklan besar</li>
+                <li>Buat rencana perbaikan dalam 1-2 minggu ke depan sebelum menambah modal lagi</li>
+            </ul>
+        `;
+    }
+    isi.innerHTML = teks;
+}
+
 // Simpan data harian
 function simpanDataHarian() {
     const bulanAktif = document.getElementById('pilih-bulan-aktif').value;
@@ -374,7 +449,7 @@ function simpanDataHarian() {
     document.getElementById('hasil-laba').innerText = `Rp ${laba.toLocaleString('id-ID')}`;
     document.getElementById('hasil-roas').innerText = `${roas}x`;
 
-    // Analisis
+    // Analisis umum
     let analisis = '';
     if (laba > 0 && roas >= target) {
         analisis = `<div class="analisis sukses">✅ Bagus! Pertahankan strategi, bisa tambah anggaran iklan.</div>`;
@@ -384,6 +459,9 @@ function simpanDataHarian() {
         analisis = `<div class="analisis bahaya">❌ Rugi, periksa biaya atau kurangi anggaran iklan.</div>`;
     }
     document.getElementById('kotak-analisis').innerHTML = analisis;
+
+    // TAMPILKAN LAPORAN KHUSUS PEMILIK
+    buatLaporanPemilik(gmv, iklan, laba, roas, target);
 
     // Simpan data
     let dataBulan = JSON.parse(localStorage.getItem(`data_bulan_${bulanAktif}`) || '{}');
