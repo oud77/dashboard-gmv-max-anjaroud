@@ -3,131 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard GMV Max - Khusus Kamu</title>
+    <title>Dashboard Analisis Bisnis GMV Max - Pro</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {margin:0; padding:0; font-family: 'Segoe UI', Roboto, sans-serif; box-sizing: border-box;}
-        body {background:#f8fafc; padding:30px; max-width:1200px; margin:0 auto; color:#1e293b;}
-        .header {text-align:center; margin-bottom:35px;}
-        .header h1 {color:#e11d48; font-size:32px; margin-bottom:10px;}
-        .header p {color:#64748b; font-size:16px;}
-        .grid {display:grid; grid-template-columns: 1fr 1fr; gap:25px; margin-bottom:25px;}
+        body {background:#0f172a; padding:30px; max-width:1400px; margin:0 auto; color:#f1f5f9;}
+        .header {text-align:center; margin-bottom:35px; border-bottom:1px solid #334155; padding-bottom:20px;}
+        .header h1 {color:#f43f5e; font-size:34px; margin-bottom:8px; letter-spacing:1px;}
+        .header p {color:#94a3b8; font-size:16px;}
+        .grid {display:grid; grid-template-columns: 1.2fr 1fr; gap:25px; margin-bottom:25px;}
+        .grid-3 {display:grid; grid-template-columns: repeat(3,1fr); gap:20px; margin-bottom:25px;}
         .grid-full {grid-column: 1 / -1;}
-        .card {background:white; border-radius:16px; padding:28px; box-shadow:0 4px 20px rgba(0,0,0,0.05);}
-        .card h3 {color:#334155; font-size:18px; margin-bottom:15px; padding-bottom:10px; border-bottom:1px solid #f1f5f9;}
-        .angka-besar {font-size:40px; font-weight:800; margin:12px 0;}
-        .naik {color:#10b981;} .turun {color:#ef4444;}
-        .label {font-size:15px; color:#64748b; font-weight:500; margin-bottom:5px;}
-        .pembatas {height:1px; background:#f1f5f9; margin:20px 0;}
-        .item {display:flex; justify-content:space-between; padding:8px 0; font-size:15px;}
-        .laba-utama {background:linear-gradient(135deg, #ecfdf5, #d1fae5); border:2px solid #10b981;}
-        .input-grup {margin-bottom:15px;}
-        input {width:100%; padding:12px 15px; border:1px solid #cbd5e1; border-radius:10px; font-size:15px; margin-top:5px;}
-        input:focus {outline:none; border-color:#e11d48; box-shadow:0 0 0 3px rgba(225,29,72,0.1);}
-        .btn {width:100%; padding:14px; border:none; border-radius:10px; font-size:16px; font-weight:bold; cursor:pointer; transition:0.2s; margin-top:8px;}
-        .btn-utama {background:#e11d48; color:white;}
-        .btn-utama:hover {background:#be123c;}
-        .btn-kedua {background:#f1f5f9; color:#334155;}
-        .btn-kedua:hover {background:#e2e8f0;}
-        .notif {border-radius:10px; padding:15px; margin-top:15px; font-size:15px; line-height:1.6;}
-        .aman {background:#ecfdf5; border-left:4px solid #10b981; color:#065f46;}
-        .perhatian {background:#fffbeb; border-left:4px solid #f59e0b; color:#92400e;}
-        .bahaya {background:#fef2f2; border-left:4px solid #ef4444; color:#991b1b;}
-        canvas {max-height:260px; margin-top:10px;}
-        @media (max-width:800px) {.grid {grid-template-columns:1fr;}}
+        .card {background:#1e293b; border-radius:16px; padding:24px; box-shadow:0 4px 20px rgba(0,0,0,0.2); border:1px solid #334155;}
+        .card h3 {color:#f8fafc; font-size:17px; margin-bottom:15px; display:flex; align-items:center; gap:8px;}
+        .angka-besar {font-size:36px; font-weight:800; margin:8px 0;}
+        .naik {color:#10b981; display:flex; align-items:center; gap:5px;}
+        .turun {color:#ef4444; display:flex; align-items:center; gap:5px;}
+        .netral {color:#f59e0b;}
+        .label {font-size:14px; color:#94a3b8; font-weight:500; margin-bottom:4px;}
+        .pembatas {height:1px; background:#334155; margin:18px 0;}
+        .item {display:flex; justify-content:space-between; padding:7px 0; font-size:15px; border-bottom:1px solid #334155;}
+        .item:last-child {border-bottom:none;}
+        .laba-utama {background:linear-gradient(135deg, #064e3b, #065f46); border:2px solid #10b981;}
+        .input-grup {margin-bottom:12px;}
+        input {width:100%; padding:10px 14px; border:1px solid #475569; border-radius:8px; font-size:15px; margin-top:4px; background:#0f172a; color:white;}
+        input:focus {outline:none; border-color:#f43f5e; box-shadow:0 0 0 3px rgba(244,63,94,0.2);}
+        .btn {width:100%; padding:13px; border:none; border-radius:8px; font-size:15px; font-weight:bold; cursor:pointer; transition:0.2s; margin-top:6px;}
+        .btn-utama {background:#f43f5e; color:white;}
+        .btn-utama:hover {background:#e11d48;}
+        .btn-kedua {background:#334155; color:#f1f5f9;}
+        .btn-kedua:hover {background:#475569;}
+        .analisis {border-radius:10px; padding:16px; margin-top:15px; font-size:15px; line-height:1.7;}
+        .sukses {background:rgba(16,185,129,0.1); border-left:4px solid #10b981; color:#a7f3d0;}
+        .peringatan {background:rgba(245,158,11,0.1); border-left:4px solid #f59e0b; color:#fde68a;}
+        .bahaya {background:rgba(239,68,68,0.1); border-left:4px solid #ef4444; color:#fecaca;}
+        canvas {max-height:240px; margin-top:10px;}
+        .riwayat {max-height:180px; overflow-y:auto; margin-top:10px;}
+        .baris-riwayat {display:flex; justify-content:space-between; padding:6px 0; font-size:14px; border-bottom:1px solid #334155;}
+        @media (max-width:1000px) {.grid, .grid-3 {grid-template-columns:1fr;}}
     </style>
 </head>
 <body>
 
 <div class="header">
-    <h1>📊 DASHBOARD GMV MAX TIKTOK</h1>
-    <p>Pantau Pendapatan & Keuntungan Harian — Khusus Untuk Kamu</p>
+    <h1>🚀 DASHBOARD ANALISIS BISNIS PRO</h1>
+    <p>Pantau Pergerakan, Deteksi Tren, & Dapatkan Rekomendasi Strategi Otomatis</p>
+</div>
+
+<div class="grid-3">
+    <div class="card">
+        <div class="label">Total GMV Hari Ini</div>
+        <div class="angka-besar" id="gmv-utama">Rp --</div>
+        <div id="banding-gmv"></div>
+    </div>
+    <div class="card">
+        <div class="label">Laba Bersih Hari Ini</div>
+        <div class="angka-besar" id="laba-utama">Rp --</div>
+        <div id="banding-laba"></div>
+    </div>
+    <div class="card">
+        <div class="label">Efisiensi Iklan (ROAS)</div>
+        <div class="angka-besar" id="roas-utama">--</div>
+        <div id="banding-roas"></div>
+    </div>
 </div>
 
 <div class="grid">
-    <!-- KOLOM KIRI: ISI DATA & PENGATURAN -->
     <div class="card">
-        <h3>📝 Masukkan Data Hari Ini</h3>
+        <h3>📝 Masukkan Data Harian</h3>
         <div class="input-grup">
-            <label class="label">Total GMV / Pendapatan Kotor (Rp)</label>
+            <label>Total GMV (Rp)</label>
             <input type="number" id="input-gmv" placeholder="Contoh: 12450000">
         </div>
         <div class="input-grup">
-            <label class="label">Biaya Iklan GMV Max (Rp)</label>
+            <label>Biaya Iklan GMV Max (Rp)</label>
             <input type="number" id="input-iklan" placeholder="Contoh: 2100000">
         </div>
         <div class="input-grup">
-            <label class="label">Jumlah Pesanan</label>
+            <label>Jumlah Pesanan</label>
             <input type="number" id="input-pesanan" placeholder="Contoh: 89">
         </div>
-        <button class="btn btn-utama" onclick="hitungSemua()">🔄 Hitung Keuntungan Sekarang</button>
+        <button class="btn btn-utama" onclick="prosesAnalisis()">🔍 Analisis & Simpan Data</button>
 
         <div class="pembatas"></div>
 
-        <h3>⚙️ Biaya Tetap (Isi Sekali Saja)</h3>
-        <div class="input-grup">
-            <label class="label">Komisi TikTok (%)</label>
-            <input type="number" id="atur-tiktok" value="3">
+        <h3>⚙️ Pengaturan Biaya Tetap</h3>
+        <div class="input-grup" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <div>
+                <label>Komisi TikTok (%)</label>
+                <input type="number" id="atur-tiktok" value="3">
+            </div>
+            <div>
+                <label>Pajak (%)</label>
+                <input type="number" id="atur-pajak" value="1">
+            </div>
+        </div>
+        <div class="input-grup" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <div>
+                <label>Komisi Afiliator (%)</label>
+                <input type="number" id="atur-afiliator" value="5">
+            </div>
+            <div>
+                <label>Target ROAS</label>
+                <input type="number" id="atur-target" value="3.5">
+            </div>
         </div>
         <div class="input-grup">
-            <label class="label">Pajak (%)</label>
-            <input type="number" id="atur-pajak" value="1">
-        </div>
-        <div class="input-grup">
-            <label class="label">Komisi Afiliator (%)</label>
-            <input type="number" id="atur-afiliator" value="5">
-        </div>
-        <div class="input-grup">
-            <label class="label">HPP / Modal Barang Harian (Rp)</label>
+            <label>Modal Barang Harian (Rp)</label>
             <input type="number" id="atur-hpp" value="5500000">
         </div>
         <div class="input-grup">
-            <label class="label">Biaya Admin Aplikasi Harian (Rp)</label>
+            <label>Biaya Admin Aplikasi (Rp)</label>
             <input type="number" id="atur-admin" value="250000">
         </div>
-        <div class="input-grup">
-            <label class="label">Target ROAS Minimal</label>
-            <input type="number" id="atur-target" value="3.5">
-        </div>
-        <button class="btn btn-kedua" onclick="simpanPengaturan()">💾 Simpan Biaya Tetap</button>
+        <button class="btn btn-kedua" onclick="simpanPengaturan()">💾 Simpan Pengaturan</button>
     </div>
 
-    <!-- KOLOM KANAN: HASIL ANALISIS -->
     <div>
-        <div class="card">
-            <div class="label">Total Pendapatan</div>
-            <div class="angka-besar" id="hasil-gmv">Rp --</div>
-            <div class="label">Biaya Iklan Terpakai</div>
-            <div class="angka-besar turun" id="hasil-iklan">Rp --</div>
-        </div>
-
         <div class="card laba-utama">
-            <div class="label">💰 LABA BERSIH SEBENARNYA</div>
-            <div class="angka-besar" id="hasil-laba">Rp --</div>
-            <div class="item"><span>ROAS</span><span id="hasil-roas">--</span></div>
-            <div class="item"><span>Rata-rata Nilai Pesanan</span><span id="hasil-rata">Rp --</span></div>
+            <h3>📋 Rincian & Analisis Biaya</h3>
+            <div class="item"><span>Biaya Iklan</span><span id="rinci-iklan">Rp --</span></div>
+            <div class="item"><span>Komisi TikTok</span><span id="rinci-tiktok">Rp --</span></div>
+            <div class="item"><span>Pajak</span><span id="rinci-pajak">Rp --</span></div>
+            <div class="item"><span>Komisi Afiliator</span><span id="rinci-afiliator">Rp --</span></div>
+            <div class="item"><span>Biaya Admin</span><span id="rinci-admin">Rp --</span></div>
+            <div class="item"><span>Modal Barang</span><span id="rinci-hpp">Rp --</span></div>
+            <div class="item" style="font-weight:bold; color:#f8fafc; padding-top:10px; border-top:2px solid #10b981;">
+                <span>Total Pengeluaran</span><span id="total-biaya">Rp --</span>
+            </div>
         </div>
 
-        <div class="card">
-            <h3>📋 Rincian Potongan Biaya</h3>
-            <div class="item"><span>Komisi TikTok</span><span id="potong-tiktok">Rp --</span></div>
-            <div class="item"><span>Pajak</span><span id="potong-pajak">Rp --</span></div>
-            <div class="item"><span>Komisi Afiliator</span><span id="potong-afiliator">Rp --</span></div>
-            <div class="item"><span>Biaya Admin Aplikasi</span><span id="potong-admin">Rp --</span></div>
-            <div class="item"><span>Modal Barang</span><span id="potong-hpp">Rp --</span></div>
-        </div>
+        <div id="kotak-analisis"></div>
+    </div>
+</div>
 
-        <div id="kotak-notif"></div>
+<div class="grid">
+    <div class="card">
+        <h3>📈 Pergerakan GMV & Laba 7 Hari Terakhir</h3>
+        <canvas id="grafikUtama"></canvas>
+    </div>
+    <div class="card">
+        <h3>📊 Komposisi Pengeluaran</h3>
+        <canvas id="grafikLingkaran"></canvas>
     </div>
 </div>
 
 <div class="card grid-full">
-    <h3>📈 Grafik Perkembangan Keuntungan</h3>
-    <canvas id="grafikUtama"></canvas>
+    <h3>📜 Riwayat Analisis Harian</h3>
+    <div class="riwayat" id="daftar-riwayat"></div>
 </div>
 
 <script>
-// Simpan pengaturan biaya otomatis
+// Simpan pengaturan
 function simpanPengaturan() {
     const pengaturan = {
         tiktok: Number(document.getElementById('atur-tiktok').value) || 3,
@@ -137,30 +164,30 @@ function simpanPengaturan() {
         admin: Number(document.getElementById('atur-admin').value) || 0,
         target: Number(document.getElementById('atur-target').value) || 3.5
     };
-    localStorage.setItem('pengaturan_laba', JSON.stringify(pengaturan));
-    alert('✅ Biaya tetap tersimpan! Tidak perlu diisi ulang besok.');
+    localStorage.setItem('pengaturan_pro', JSON.stringify(pengaturan));
+    alert('✅ Pengaturan disimpan!');
 }
 
-// Muat pengaturan yang sudah disimpan saat buka halaman
+// Muat data tersimpan
 window.onload = function() {
-    const simpanan = JSON.parse(localStorage.getItem('pengaturan_laba') || '{}');
+    const simpanan = JSON.parse(localStorage.getItem('pengaturan_pro') || '{}');
     if (simpanan.tiktok) document.getElementById('atur-tiktok').value = simpanan.tiktok;
     if (simpanan.pajak) document.getElementById('atur-pajak').value = simpanan.pajak;
     if (simpanan.afiliator) document.getElementById('atur-afiliator').value = simpanan.afiliator;
     if (simpanan.hpp) document.getElementById('atur-hpp').value = simpanan.hpp;
     if (simpanan.admin) document.getElementById('atur-admin').value = simpanan.admin;
     if (simpanan.target) document.getElementById('atur-target').value = simpanan.target;
+    tampilkanRiwayat();
+    buatGrafik();
 };
 
-// Hitung semua data dengan akurat
-function hitungSemua() {
-    // Ambil data harian
+// Proses analisis cerdas
+function prosesAnalisis() {
+    // Ambil data
     const gmv = Number(document.getElementById('input-gmv').value) || 0;
-    const biayaIklan = Number(document.getElementById('input-iklan').value) || 0;
+    const iklan = Number(document.getElementById('input-iklan').value) || 0;
     const pesanan = Number(document.getElementById('input-pesanan').value) || 0;
-
-    // Ambil biaya tetap
-    const pengaturan = JSON.parse(localStorage.getItem('pengaturan_laba') || '{}');
+    const pengaturan = JSON.parse(localStorage.getItem('pengaturan_pro') || '{}');
     const p_tiktok = Number(pengaturan.tiktok || document.getElementById('atur-tiktok').value) || 3;
     const p_pajak = Number(pengaturan.pajak || document.getElementById('atur-pajak').value) || 1;
     const p_afiliator = Number(pengaturan.afiliator || document.getElementById('atur-afiliator').value) || 5;
@@ -169,55 +196,139 @@ function hitungSemua() {
     const target = Number(pengaturan.target || document.getElementById('atur-target').value) || 3.5;
 
     // Hitung rincian
-    const potongTikTok = gmv * p_tiktok / 100;
-    const potongPajak = gmv * p_pajak / 100;
-    const potongAfiliator = gmv * p_afiliator / 100;
-    const totalBiaya = biayaIklan + potongTikTok + potongPajak + potongAfiliator + admin + hpp;
-    const labaBersih = gmv - totalBiaya;
-    const roas = biayaIklan > 0 ? (gmv / biayaIklan).toFixed(1) : 0;
-    const rataPesanan = pesanan > 0 ? Math.round(gmv / pesanan) : 0;
+    const biayaTikTok = gmv * p_tiktok / 100;
+    const biayaPajak = gmv * p_pajak / 100;
+    const biayaAfiliator = gmv * p_afiliator / 100;
+    const totalBiaya = iklan + biayaTikTok + biayaPajak + biayaAfiliator + admin + hpp;
+    const laba = gmv - totalBiaya;
+    const roas = iklan > 0 ? (gmv / iklan).toFixed(1) : 0;
+    const rata = pesanan > 0 ? Math.round(gmv / pesanan) : 0;
 
-    // Tampilkan hasil ke layar
-    document.getElementById('hasil-gmv').innerText = `Rp ${gmv.toLocaleString('id-ID')}`;
-    document.getElementById('hasil-iklan').innerText = `Rp ${biayaIklan.toLocaleString('id-ID')}`;
-    document.getElementById('hasil-laba').innerText = `Rp ${labaBersih.toLocaleString('id-ID')}`;
-    document.getElementById('hasil-roas').innerText = `${roas}x`;
-    document.getElementById('hasil-rata').innerText = `Rp ${rataPesanan.toLocaleString('id-ID')}`;
+    // Tampilkan angka utama
+    document.getElementById('gmv-utama').innerText = `Rp ${gmv.toLocaleString('id-ID')}`;
+    document.getElementById('laba-utama').innerText = `Rp ${laba.toLocaleString('id-ID')}`;
+    document.getElementById('roas-utama').innerText = `${roas}x`;
 
-    document.getElementById('potong-tiktok').innerText = `Rp ${potongTikTok.toLocaleString('id-ID')}`;
-    document.getElementById('potong-pajak').innerText = `Rp ${potongPajak.toLocaleString('id-ID')}`;
-    document.getElementById('potong-afiliator').innerText = `Rp ${potongAfiliator.toLocaleString('id-ID')}`;
-    document.getElementById('potong-admin').innerText = `Rp ${admin.toLocaleString('id-ID')}`;
-    document.getElementById('potong-hpp').innerText = `Rp ${hpp.toLocaleString('id-ID')}`;
+    // Tampilkan rincian biaya
+    document.getElementById('rinci-iklan').innerText = `Rp ${iklan.toLocaleString('id-ID')}`;
+    document.getElementById('rinci-tiktok').innerText = `Rp ${biayaTikTok.toLocaleString('id-ID')}`;
+    document.getElementById('rinci-pajak').innerText = `Rp ${biayaPajak.toLocaleString('id-ID')}`;
+    document.getElementById('rinci-afiliator').innerText = `Rp ${biayaAfiliator.toLocaleString('id-ID')}`;
+    document.getElementById('rinci-admin').innerText = `Rp ${admin.toLocaleString('id-ID')}`;
+    document.getElementById('rinci-hpp').innerText = `Rp ${hpp.toLocaleString('id-ID')}`;
+    document.getElementById('total-biaya').innerText = `Rp ${totalBiaya.toLocaleString('id-ID')}`;
 
-    // Buat notifikasi saran
-    let notif = '';
-    const kotak = document.getElementById('kotak-notif');
-    if (labaBersih > 0 && roas >= target) {
-        notif = `<div class="notif aman">✅ <strong>Bagus!</strong> Hari ini untung, ROAS aman di atas target ${target}x. Pertahankan strategi ini.</div>`;
-    } else if (labaBersih > 0 && roas < target) {
-        notif = `<div class="notif perhatian">⚠️ <strong>Perhatian:</strong> Masih untung, tapi ROAS di bawah target ${target}x. Coba kurangi sedikit anggaran atau ubah materi iklan.</div>`;
-    } else {
-        notif = `<div class="notif bahaya">❌ <strong>Kerugian Terdeteksi:</strong> Pengeluaran lebih besar dari pendapatan. Hentikan sementara atau kurangi anggaran GMV Max.</div>`;
+    // Bandingkan dengan data kemarin
+    let bandingGmv = '', bandingLaba = '', bandingRoas = '';
+    const riwayat = JSON.parse(localStorage.getItem('riwayat_bisnis') || '[]');
+    if (riwayat.length > 0) {
+        const kemarin = riwayat[riwayat.length - 1];
+        const persenGmv = Math.round(((gmv - kemarin.gmv) / kemarin.gmv) * 100);
+        const persenLaba = Math.round(((laba - kemarin.laba) / kemarin.laba) * 100);
+        const persenRoas = Math.round(((Number(roas) - Number(kemarin.roas)) / Number(kemarin.roas)) * 100);
+        
+        bandingGmv = persenGmv >= 0 ? `<div class="naik">↑ ${persenGmv}% dari kemarin</div>` : `<div class="turun">↓ ${Math.abs(persenGmv)}% dari kemarin</div>`;
+        bandingLaba = persenLaba >= 0 ? `<div class="naik">↑ ${persenLaba}% dari kemarin</div>` : `<div class="turun">↓ ${Math.abs(persenLaba)}% dari kemarin</div>`;
+        bandingRoas = persenRoas >= 0 ? `<div class="naik">↑ ${persenRoas}% dari kemarin</div>` : `<div class="turun">↓ ${Math.abs(persenRoas)}% dari kemarin</div>`;
     }
-    kotak.innerHTML = notif;
+    document.getElementById('banding-gmv').innerHTML = bandingGmv;
+    document.getElementById('banding-laba').innerHTML = bandingLaba;
+    document.getElementById('banding-roas').innerHTML = bandingRoas;
+
+    // Analisis cerdas & rekomendasi
+    let analisis = '';
+    if (laba > 0 && roas >= target) {
+        analisis = `<div class="analisis sukses">
+            <strong>✅ KONDISI SANGAT BAGUS</strong><br>
+            Usaha tumbuh positif, iklan sangat efisien. <strong>Rekomendasi:</strong> Tambah anggaran iklan 10-20% untuk memperbesar pendapatan.
+        </div>`;
+    } else if (laba > 0 && roas < target) {
+        analisis = `<div class="analisis peringatan">
+            <strong>⚠️ PERLU PERBAIKAN</strong><br>
+            Masih untung tapi iklan kurang efisien. <strong>Rekomendasi:</strong> Kurangi anggaran kampanye yang sepi, fokus pada produk yang laris.
+        </div>`;
+    } else if (laba <= 0 && roas >= target) {
+        analisis = `<div class="analisis peringatan">
+            <strong>⚠️ BIAYA TETAP TINGGI</strong><br>
+            Iklan sudah bagus tapi biaya lain memakan laba. <strong>Rekomendasi:</strong> Periksa kembali modal barang atau biaya admin.
+        </div>`;
+    } else {
+        analisis = `<div class="analisis bahaya">
+            <strong>❌ KERUGIAN TERDETEKSI</strong><br>
+            Pengeluaran melebihi pendapatan. <strong>Rekomendasi:</strong> Hentikan iklan sementara, evaluasi materi promosi dan harga jual.
+        </div>`;
+    }
+    document.getElementById('kotak-analisis').innerHTML = analisis;
+
+    // Simpan ke riwayat
+    const dataBaru = {
+        tanggal: new Date().toLocaleDateString('id-ID'),
+        gmv: gmv,
+        laba: laba,
+        roas: roas,
+        pesanan: pesanan
+    };
+    riwayat.push(dataBaru);
+    localStorage.setItem('riwayat_bisnis', JSON.stringify(riwayat.slice(-7))); // Simpan 7 hari terakhir
+    tampilkanRiwayat();
+    buatGrafik();
+    alert('✅ Analisis selesai! Data tersimpan ke riwayat.');
 }
 
-// Grafik contoh yang bisa diisi nanti
-new Chart(document.getElementById('grafikUtama'), {
-    type: 'line',
-    data: {
-        labels: '12 Jul,13 Jul,14 Jul,15 Jul,16 Jul,17 Jul,18 Jul'.split(','),
-        datasets: [{
-            label: 'Laba Harian (Rp)',
-            data: [1900000, 2100000, 1850000, 2400000, 2600000, 2500000, 0],
-            borderColor: '#e11d48',
-            backgroundColor: 'rgba(225,29,72,0.1)',
-            fill: true, tension: 0.3
-        }]
-    },
-    options: {responsive: true, plugins: {legend: {position: 'top'}}}
-});
+// Tampilkan riwayat
+function tampilkanRiwayat() {
+    const riwayat = JSON.parse(localStorage.getItem('riwayat_bisnis') || '[]').reverse();
+    const wadah = document.getElementById('daftar-riwayat');
+    wadah.innerHTML = '';
+    if (riwayat.length === 0) {
+        wadah.innerHTML = '<p style="color:#94a3b8; text-align:center;">Belum ada data riwayat</p>';
+        return;
+    }
+    riwayat.forEach(d => {
+        wadah.innerHTML += `
+            <div class="baris-riwayat">
+                <span>${d.tanggal}</span>
+                <span>GMV: Rp ${d.gmv.toLocaleString('id-ID')}</span>
+                <span>Laba: Rp ${d.laba.toLocaleString('id-ID')}</span>
+                <span>ROAS: ${d.roas}x</span>
+            </div>
+        `;
+    });
+}
+
+// Buat semua grafik
+function buatGrafik() {
+    const riwayat = JSON.parse(localStorage.getItem('riwayat_bisnis') || '[]');
+    const label = riwayat.map(d => d.tanggal);
+    const dataGmv = riwayat.map(d => d.gmv);
+    const dataLaba = riwayat.map(d => d.laba);
+
+    // Grafik utama
+    new Chart(document.getElementById('grafikUtama'), {
+        type: 'line',
+        data: {
+            labels: label.length > 0 ? label : ['-'],
+            datasets: [
+                { label: 'GMV', data: dataGmv.length > 0 ? dataGmv : [0], borderColor: '#f43f5e', backgroundColor: 'rgba(244,63,94,0.1)', fill: true, tension:0.3 },
+                { label: 'Laba Bersih', data: dataLaba.length > 0 ? dataLaba : [0], borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true, tension:0.3 }
+            ]
+        },
+        options: {responsive: true, plugins: {legend: {position: 'top'}}, scales: {y: {grid: {color: '#334155'}}}}
+    });
+
+    // Grafik lingkaran komposisi biaya
+    new Chart(document.getElementById('grafikLingkaran'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Iklan', 'Komisi TikTok', 'Pajak', 'Afiliator', 'Admin', 'Modal'],
+            datasets: [{
+                data: [25, 8, 3, 13, 3, 48],
+                backgroundColor: ['#f43f5e','#f59e0b','#8b5cf6','#ec4899','#6b7280','#10b981']
+            }]
+        },
+        options: {responsive: true, plugins: {legend: {position: 'bottom'}}}
+    });
+}
 </script>
 </body>
 </html>
