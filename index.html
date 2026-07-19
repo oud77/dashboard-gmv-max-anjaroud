@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Analisis Bisnis Pro - HPP Rupiah</title>
+    <title>Dashboard Analisis Bisnis Pro - Perbaikan Aman</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -42,6 +42,8 @@
         .btn-tema:hover {background: var(--merah); color:white;}
         .btn-cetak {padding:10px 18px; border-radius:8px; border:none; background: var(--biru); color:white; font-size:14px; font-weight:bold; cursor:pointer; transition:0.2s; display:flex; align-items:center; gap:6px;}
         .btn-cetak:hover {background: #2563eb;}
+        .btn-bersih {padding:10px 18px; border-radius:8px; border:1px solid var(--kuning); background:transparent; color: var(--kuning); font-size:14px; font-weight:bold; cursor:pointer; transition:0.2s;}
+        .btn-bersih:hover {background: rgba(245,158,11,0.1);}
         .header {text-align:center; margin-bottom:25px; border-bottom:1px solid var(--batas); padding-bottom:15px;}
         .header h1 {color: var(--merah); font-size:32px; margin-bottom:5px; letter-spacing:1px;}
         .header p {color: var(--teks-kedua); font-size:15px;}
@@ -118,10 +120,11 @@
 <div class="baris-atas">
     <button class="btn-tema" onclick="gantiTema()">🌙 / ☀️ Ganti Tema</button>
     <button class="btn-cetak" onclick="window.print()">🖨️ Cetak Laporan Bulanan</button>
+    <button class="btn-bersih" onclick="bersihkanDataBulan()">🗑️ Hapus Data Bulan Ini</button>
 </div>
 <div class="header">
     <h1>🚀 DASHBOARD ANALISIS BISNIS PRO</h1>
-    <p>HPP dalam Rupiah • Input Manual • Pilih Tanggal Terlewat</p>
+    <p>Input Aman • HPP Rupiah • Hitungan Akurat</p>
 </div>
 <div class="pilih-bulan">
     <select id="pilih-bulan-aktif"></select>
@@ -167,15 +170,16 @@
         </div>
         <div class="input-grup">
             <label>Total GMV (Rp)</label>
-            <input type="number" id="input-gmv" placeholder="Contoh: 12450000" min="0">
+            <input type="number" id="input-gmv" placeholder="Contoh: 12450000" min="0" max="9999999999">
         </div>
         <div class="input-grup">
             <label>Biaya Iklan GMV Max (Rp)</label>
-            <input type="number" id="input-iklan" placeholder="Contoh: 2100000" min="0">
+            <input type="number" id="input-iklan" placeholder="Contoh: 2100000" min="0" max="999999999">
         </div>
         <div class="input-grup">
-            <label>Jumlah Pesanan Terjual</label>
-            <input type="number" id="input-pesanan" placeholder="Contoh: 89" min="0">
+            <label>Jumlah Pesanan Terjual (Maks. 9.999/hari)</label>
+            <input type="number" id="input-pesanan" placeholder="Contoh: 27" min="0" max="9999">
+            <div class="keterangan">⚠️ Masukkan angka wajar agar hitungan laba akurat</div>
         </div>
         <button class="btn btn-utama" onclick="simpanDataHarian()">💾 Simpan Data Sesuai Tanggal</button>
     </div>
@@ -199,18 +203,18 @@
         <div class="pembatas"></div>
         <div class="input-grup">
             <label>Total Anggaran Iklan Bulanan (Rp)</label>
-            <input type="number" id="atur-adspend" value="8212308" min="0" placeholder="Masukkan anggaran total">
+            <input type="number" id="atur-adspend" value="8212308" min="0" max="999999999">
             <div class="keterangan">Contoh: 8212308 berarti Rp 8.212.308</div>
         </div>
         <div class="input-grup">
             <label>Rata-rata Modal / HPP per Barang (Rp)</label>
-            <input type="number" id="atur-hpp" value="55000" min="0" placeholder="Contoh: 55000">
+            <input type="number" id="atur-hpp" value="55000" min="100" max="999999">
             <div class="keterangan">Harga beli rata-rata satu produk sebelum dijual</div>
         </div>
         <div class="input-grup">
             <label>Target ROAS Ideal</label>
             <div class="input-satuan">
-                <input type="number" id="atur-target" value="5" min="1" max="20" step="0.1" placeholder="Contoh: 5">
+                <input type="number" id="atur-target" value="5" min="1" max="50" step="0.1" placeholder="Contoh: 5">
                 <span class="satuan">x</span>
             </div>
             <div class="keterangan">Standar aman pengembalian modal iklan</div>
@@ -332,6 +336,14 @@ function isiPilihanBulan() {
         pilih.appendChild(opsi);
     });
 }
+function bersihkanDataBulan() {
+    const bulanAktif = document.getElementById('pilih-bulan-aktif').value;
+    if(confirm(`Yakin ingin menghapus SEMUA data bulan ${bulanAktif}? Tindakan ini tidak bisa dibatalkan!`)) {
+        localStorage.removeItem(`data_bulan_${bulanAktif}`);
+        alert('✅ Data bulan ini berhasil dihapus, silakan input ulang dengan angka yang benar!');
+        gantiBulan();
+    }
+}
 function resetDefault() {
     document.getElementById('atur-adspend').value = 8212308;
     document.getElementById('atur-hpp').value = 55000;
@@ -398,10 +410,12 @@ function buatLaporanBulanan(bulan) {
         laporan += `<div class="pemberitahuan sukses">✅ PERFORMA SANGAT BAGUS: Iklan efisien, bisnis tumbuh sehat.</div><ul><li>Setiap Rp 1 iklan hasilkan Rp ${rataRoas} penjualan, melebihi target ${target}x</li><li>Keuntungan baik untuk pengembangan usaha</li></ul>`;
     } else if (rataRoas >= 3 && totalLaba > 0) {
         laporan += `<div class="pemberitahuan peringatan">⚠️ UNTUNG NAMUN PERLU DIPERBAIKI: Efisiensi iklan belum maksimal.</div><ul><li>ROAS ${rataRoas}x masih di bawah target ${target}x</li></ul>`;
+    } else if (rataRoas >= target && totalLaba <= 0) {
+        laporan += `<div class="pemberitahuan peringatan">⚠️ ROAS IKLAN SANGAT BAGUS, TAPI BIAYA LAIN TINGGI: Iklan sudah efisien, periksa biaya admin/komisi/modal.</div><ul><li>ROAS ${rataRoas}x sudah melebihi target ${target}x</li><li>Sumber kerugian bukan dari iklan</li></ul>`;
     } else if (totalLaba > 0) {
         laporan += `<div class="pemberitahuan peringatan">⚠️ AMBANG BATAS: Keuntungan sangat tipis.</div><ul><li>ROAS ${rataRoas}x hampir titik impas</li></ul>`;
     } else {
-        laporan += `<div class="pemberitahuan penting">❌ PERBAIKAN SEGERA: Bulan ini rugi.</div><ul><li>ROAS ${rataRoas}x belum cukup tutup biaya</li></ul>`;
+        laporan += `<div class="pemberitahuan penting">❌ PERBAIKAN SEGERA: Bulan ini rugi.</div><ul><li>Periksa kembali modal barang, biaya iklan, atau persentase biaya lain</li></ul>`;
     }
     isi.innerHTML = laporan;
 }
@@ -424,6 +438,14 @@ function simpanDataHarian() {
     const hppSatuan = Number(pengaturan.hpp_satuan || 55000);
     const p_admin = Number(pengaturan.admin_persen || 15);
     const p_afiliator = Number(pengaturan.afiliator_persen || 3);
+    
+    // Cek kewajaran pesanan sebelum hitung
+    const estimasiHargaSatuan = pesanan > 0 ? gmv / pesanan : 0;
+    if(pesanan > 0 && estimasiHargaSatuan < hppSatuan * 0.5) {
+        if(!confirm(`⚠️ PERINGATAN: Harga jual rata-rata (Rp ${Math.round(estimasiHargaSatuan).toLocaleString('id-ID')}) jauh di bawah modal (Rp ${hppSatuan.toLocaleString('id-ID')})!\nAtau jumlah pesanan terlalu besar?\nYakin ingin menyimpan?`)) {
+            return;
+        }
+    }
     
     // Hitungan baru dengan HPP Rupiah
     const totalHPP = pesanan * hppSatuan;
