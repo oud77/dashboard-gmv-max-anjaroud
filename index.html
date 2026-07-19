@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Analisis Bisnis Pro - Simpan Bulanan</title>
+    <title>Dashboard Analisis Bisnis Pro - Kalibrasi Sesuai Gambar</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {margin:0; padding:0; font-family: 'Segoe UI', Roboto, sans-serif; box-sizing: border-box;}
@@ -14,7 +14,7 @@
         .pilih-bulan {display:flex; justify-content:center; gap:10px; margin-bottom:25px;}
         .pilih-bulan select, .pilih-bulan button {padding:10px 15px; border-radius:8px; border:1px solid #475569; background:#1e293b; color:white; font-size:15px;}
         .pilih-bulan button {background:#f43f5e; border:none; cursor:pointer;}
-        .grid {display:grid; grid-template-columns: 1.2fr 1fr; gap:25px; margin-bottom:25px;}
+        .grid {display:grid; grid-template-columns: 1fr 1.2fr; gap:25px; margin-bottom:25px;}
         .grid-3 {display:grid; grid-template-columns: repeat(3,1fr); gap:20px; margin-bottom:25px;}
         .grid-full {grid-column: 1 / -1;}
         .card {background:#1e293b; border-radius:16px; padding:24px; box-shadow:0 4px 20px rgba(0,0,0,0.2); border:1px solid #334155;}
@@ -27,14 +27,23 @@
         .item {display:flex; justify-content:space-between; padding:7px 0; font-size:15px; border-bottom:1px solid #334155;}
         .item:last-child {border-bottom:none;}
         .laba-utama {background:linear-gradient(135deg, #064e3b, #065f46); border:2px solid #10b981;}
-        .input-grup {margin-bottom:12px;}
-        input {width:100%; padding:10px 14px; border:1px solid #475569; border-radius:8px; font-size:15px; margin-top:4px; background:#0f172a; color:white;}
-        input:focus {outline:none; border-color:#f43f5e; box-shadow:0 0 0 3px rgba(244,63,94,0.2);}
-        .btn {width:100%; padding:13px; border:none; border-radius:8px; font-size:15px; font-weight:bold; cursor:pointer; transition:0.2s; margin-top:6px;}
+        .input-grup {margin-bottom:16px;}
+        .input-grup label {display:block; margin-bottom:6px; font-size:14px;}
+        .input-grup .keterangan {font-size:12px; color:#94a3b8; margin-top:2px;}
+        input[type="number"] {width:100%; padding:10px 14px; border:1px solid #475569; border-radius:8px; font-size:15px; background:#0f172a; color:white;}
+        input[type="number"]:focus {outline:none; border-color:#f43f5e; box-shadow:0 0 0 3px rgba(244,63,94,0.2);}
+        input[type="range"] {width:100%; margin:8px 0;}
+        .nilai-range {font-weight:bold; color:#f43f5e;}
+        .btn {width:100%; padding:13px; border:none; border-radius:8px; font-size:15px; font-weight:bold; cursor:pointer; transition:0.2s; margin-top:8px;}
         .btn-utama {background:#f43f5e; color:white;}
         .btn-utama:hover {background:#e11d48;}
         .btn-kedua {background:#334155; color:#f1f5f9;}
         .btn-kedua:hover {background:#475569;}
+        .btn-reset {background:transparent; border:1px solid #f43f5e; color:#f43f5e; margin-bottom:10px;}
+        .btn-reset:hover {background:rgba(244,63,94,0.1);}
+        .judul-kalibrasi {text-align:center; margin-bottom:20px;}
+        .judul-kalibrasi h2 {color:#f43f5e; font-size:20px; margin-bottom:5px;}
+        .judul-kalibrasi p {color:#94a3b8; font-size:14px;}
         .analisis {border-radius:10px; padding:16px; margin-top:15px; font-size:15px; line-height:1.7;}
         .sukses {background:rgba(16,185,129,0.1); border-left:4px solid #10b981; color:#a7f3d0;}
         .peringatan {background:rgba(245,158,11,0.1); border-left:4px solid #f59e0b; color:#fde68a;}
@@ -74,57 +83,76 @@
 </div>
 
 <div class="grid">
+    <!-- KOLOM KIRI: PENGATURAN KALIBRASI SESUAI GAMBAR -->
     <div class="card">
-        <h3>📝 Masukkan Data Hari Ini (<span id="tanggal-hari-ini"></span>)</h3>
-        <div class="input-grup">
-            <label>Total GMV (Rp)</label>
-            <input type="number" id="input-gmv" placeholder="Contoh: 12450000">
+        <div class="judul-kalibrasi">
+            <h2>⚙️ PENGATURAN KALIBRASI</h2>
+            <p>Atur variabel untuk kalibrasi instan.</p>
         </div>
-        <div class="input-grup">
-            <label>Biaya Iklan GMV Max (Rp)</label>
-            <input type="number" id="input-iklan" placeholder="Contoh: 2100000">
-        </div>
-        <div class="input-grup">
-            <label>Jumlah Pesanan</label>
-            <input type="number" id="input-pesanan" placeholder="Contoh: 89">
-        </div>
-        <button class="btn btn-utama" onclick="simpanDataHarian()">💾 Simpan & Analisis</button>
-
         <div class="pembatas"></div>
 
-        <h3>⚙️ Pengaturan Biaya Tetap</h3>
-        <div class="input-grup" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-            <div>
-                <label>Komisi TikTok (%)</label>
-                <input type="number" id="atur-tiktok" value="3">
-            </div>
-            <div>
-                <label>Pajak (%)</label>
-                <input type="number" id="atur-pajak" value="1">
-            </div>
-        </div>
-        <div class="input-grup" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-            <div>
-                <label>Komisi Afiliator (%)</label>
-                <input type="number" id="atur-afiliator" value="5">
-            </div>
-            <div>
-                <label>Target ROAS</label>
-                <input type="number" id="atur-target" value="3.5">
-            </div>
-        </div>
+        <h4 style="margin-bottom:15px; color:#f43f5e;">VARIABEL TOKO (BULANAN)</h4>
+
         <div class="input-grup">
-            <label>Modal Barang Harian (Rp)</label>
-            <input type="number" id="atur-hpp" value="5500000">
+            <label>Total Ad Spend Toko</label>
+            <input type="number" id="atur-adspend" value="8212308">
+            <div class="keterangan">Rp 8.212.308</div>
         </div>
+
         <div class="input-grup">
-            <label>Biaya Admin Aplikasi (Rp)</label>
-            <input type="number" id="atur-admin" value="250000">
+            <label>Estimasi HPP / COGS (%) <span class="nilai-range">55%</span></label>
+            <input type="range" id="atur-hpp" min="0" max="100" value="55" oninput="document.querySelector('.nilai-range').textContent = this.value + '%'">
+            <div class="keterangan">% rata-rata HPP dari total nilai penjualan.</div>
         </div>
-        <button class="btn btn-kedua" onclick="simpanPengaturan()">💾 Simpan Pengaturan</button>
+
+        <div class="input-grup">
+            <label>Target ROAS Ideal <span class="nilai-range" style="color:#ec4899;">5.0x</span></label>
+            <input type="range" id="atur-target" min="1" max="10" step="0.1" value="5" oninput="document.querySelectorAll('.nilai-range')[1].textContent = this.value + 'x'">
+            <div class="keterangan">Standar aman pengembalian modal iklan GMV Max.</div>
+        </div>
+
+        <div class="input-grup">
+            <label>Tingkat Retur COD & Batal <span class="nilai-range" style="color:#f59e0b;">2%</span></label>
+            <input type="range" id="atur-retur" min="0" max="20" value="2" oninput="document.querySelectorAll('.nilai-range')[2].textContent = this.value + '%'">
+            <div class="keterangan">Persentase barang gagal kirim / dibatalkan pembeli.</div>
+        </div>
+
+        <div class="input-grup">
+            <label>Biaya Layanan/Admin Toko <span class="nilai-range" style="color:#3b82f6;">15%</span></label>
+            <input type="range" id="atur-admin" min="0" max="30" value="15" oninput="document.querySelectorAll('.nilai-range')[3].textContent = this.value + '%'">
+            <div class="keterangan">Potongan langsung dari platform TikTok Shop.</div>
+        </div>
+
+        <div class="input-grup">
+            <label>Komisi Kreator Afiliasi <span class="nilai-range" style="color:#8b5cf6;">3%</span></label>
+            <input type="range" id="atur-afiliator" min="0" max="15" value="3" oninput="document.querySelectorAll('.nilai-range')[4].textContent = this.value + '%'">
+            <div class="keterangan">Estimasi komisi kreator dari traffic afiliasi GMV Max.</div>
+        </div>
+
+        <button class="btn btn-reset" onclick="resetDefault()">Reset ke Data Default</button>
+        <button class="btn btn-utama" onclick="simpanPengaturan()">💾 Simpan Pengaturan</button>
+        <button class="btn btn-kedua" onclick="eksporLaporan()">⬇️ Ekspor Laporan Kalibrated (.csv)</button>
     </div>
 
+    <!-- KOLOM KANAN: INPUT DATA & HASIL -->
     <div>
+        <div class="card">
+            <h3>📝 Masukkan Data Hari Ini (<span id="tanggal-hari-ini"></span>)</h3>
+            <div class="input-grup">
+                <label>Total GMV (Rp)</label>
+                <input type="number" id="input-gmv" placeholder="Contoh: 12450000">
+            </div>
+            <div class="input-grup">
+                <label>Biaya Iklan GMV Max (Rp)</label>
+                <input type="number" id="input-iklan" placeholder="Contoh: 2100000">
+            </div>
+            <div class="input-grup">
+                <label>Jumlah Pesanan</label>
+                <input type="number" id="input-pesanan" placeholder="Contoh: 89">
+            </div>
+            <button class="btn btn-utama" onclick="simpanDataHarian()">💾 Simpan & Analisis</button>
+        </div>
+
         <div class="card laba-utama">
             <h3>📋 Hasil Hari Ini</h3>
             <div class="item"><span>Total GMV</span><span id="hasil-gmv">Rp --</span></div>
@@ -181,30 +209,77 @@ function isiPilihanBulan() {
     });
 }
 
-// Simpan pengaturan
+// Reset ke nilai default sesuai gambar
+function resetDefault() {
+    document.getElementById('atur-adspend').value = 8212308;
+    document.getElementById('atur-hpp').value = 55;
+    document.getElementById('atur-target').value = 5;
+    document.getElementById('atur-retur').value = 2;
+    document.getElementById('atur-admin').value = 15;
+    document.getElementById('atur-afiliator').value = 3;
+    document.querySelectorAll('.nilai-range')[0].textContent = '55%';
+    document.querySelectorAll('.nilai-range')[1].textContent = '5.0x';
+    document.querySelectorAll('.nilai-range')[2].textContent = '2%';
+    document.querySelectorAll('.nilai-range')[3].textContent = '15%';
+    document.querySelectorAll('.nilai-range')[4].textContent = '3%';
+    alert('✅ Pengaturan dikembalikan ke nilai default!');
+}
+
+// Simpan pengaturan kalibrasi
 function simpanPengaturan() {
     const pengaturan = {
-        tiktok: Number(document.getElementById('atur-tiktok').value) || 3,
-        pajak: Number(document.getElementById('atur-pajak').value) || 1,
-        afiliator: Number(document.getElementById('atur-afiliator').value) || 5,
-        hpp: Number(document.getElementById('atur-hpp').value) || 0,
-        admin: Number(document.getElementById('atur-admin').value) || 0,
-        target: Number(document.getElementById('atur-target').value) || 3.5
+        adspend: Number(document.getElementById('atur-adspend').value) || 0,
+        hpp_persen: Number(document.getElementById('atur-hpp').value) || 55,
+        target: Number(document.getElementById('atur-target').value) || 5,
+        retur: Number(document.getElementById('atur-retur').value) || 2,
+        admin_persen: Number(document.getElementById('atur-admin').value) || 15,
+        afiliator_persen: Number(document.getElementById('atur-afiliator').value) || 3
     };
-    localStorage.setItem('pengaturan_pro', JSON.stringify(pengaturan));
-    alert('✅ Pengaturan disimpan!');
+    localStorage.setItem('pengaturan_kalibrasi', JSON.stringify(pengaturan));
+    alert('✅ Pengaturan kalibrasi disimpan!');
+}
+
+// Ekspor laporan CSV
+function eksporLaporan() {
+    const bulanAktif = document.getElementById('pilih-bulan-aktif').value;
+    const dataBulan = JSON.parse(localStorage.getItem(`data_bulan_${bulanAktif}`) || '{}');
+    let csv = "Tanggal,GMV,Biaya Iklan,Pesanan,Laba,ROAS\n";
+    Object.entries(dataBulan).forEach(([tgl, d]) => {
+        csv += `${tgl},${d.gmv},${d.iklan},${d.pesanan},${d.laba},${d.roas}\n`;
+    });
+    const blob = new Blob([csv], {type:'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `Laporan_Kalibrasi_${bulanAktif}.csv`; a.click();
+    URL.revokeObjectURL(url);
+    alert('✅ Laporan berhasil diunduh!');
 }
 
 // Muat pengaturan tersimpan
 window.onload = function() {
     isiPilihanBulan();
-    const simpanan = JSON.parse(localStorage.getItem('pengaturan_pro') || '{}');
-    if (simpanan.tiktok) document.getElementById('atur-tiktok').value = simpanan.tiktok;
-    if (simpanan.pajak) document.getElementById('atur-pajak').value = simpanan.pajak;
-    if (simpanan.afiliator) document.getElementById('atur-afiliator').value = simpanan.afiliator;
-    if (simpanan.hpp) document.getElementById('atur-hpp').value = simpanan.hpp;
-    if (simpanan.admin) document.getElementById('atur-admin').value = simpanan.admin;
-    if (simpanan.target) document.getElementById('atur-target').value = simpanan.target;
+    const simpanan = JSON.parse(localStorage.getItem('pengaturan_kalibrasi') || '{}');
+    if (simpanan.adspend) document.getElementById('atur-adspend').value = simpanan.adspend;
+    if (simpanan.hpp_persen) {
+        document.getElementById('atur-hpp').value = simpanan.hpp_persen;
+        document.querySelectorAll('.nilai-range')[0].textContent = simpanan.hpp_persen + '%';
+    }
+    if (simpanan.target) {
+        document.getElementById('atur-target').value = simpanan.target;
+        document.querySelectorAll('.nilai-range')[1].textContent = simpanan.target + 'x';
+    }
+    if (simpanan.retur) {
+        document.getElementById('atur-retur').value = simpanan.retur;
+        document.querySelectorAll('.nilai-range')[2].textContent = simpanan.retur + '%';
+    }
+    if (simpanan.admin_persen) {
+        document.getElementById('atur-admin').value = simpanan.admin_persen;
+        document.querySelectorAll('.nilai-range')[3].textContent = simpanan.admin_persen + '%';
+    }
+    if (simpanan.afiliator_persen) {
+        document.getElementById('atur-afiliator').value = simpanan.afiliator_persen;
+        document.querySelectorAll('.nilai-range')[4].textContent = simpanan.afiliator_persen + '%';
+    }
     gantiBulan();
 };
 
@@ -223,19 +298,17 @@ function simpanDataHarian() {
     const gmv = Number(document.getElementById('input-gmv').value) || 0;
     const iklan = Number(document.getElementById('input-iklan').value) || 0;
     const pesanan = Number(document.getElementById('input-pesanan').value) || 0;
-    const pengaturan = JSON.parse(localStorage.getItem('pengaturan_pro') || '{}');
-    const p_tiktok = Number(pengaturan.tiktok || document.getElementById('atur-tiktok').value) || 3;
-    const p_pajak = Number(pengaturan.pajak || document.getElementById('atur-pajak').value) || 1;
-    const p_afiliator = Number(pengaturan.afiliator || document.getElementById('atur-afiliator').value) || 5;
-    const hpp = Number(pengaturan.hpp || document.getElementById('atur-hpp').value) || 0;
-    const admin = Number(pengaturan.admin || document.getElementById('atur-admin').value) || 0;
-    const target = Number(pengaturan.target || document.getElementById('atur-target').value) || 3.5;
+    const pengaturan = JSON.parse(localStorage.getItem('pengaturan_kalibrasi') || '{}');
+    const p_hpp = Number(pengaturan.hpp_persen || document.getElementById('atur-hpp').value) || 55;
+    const p_admin = Number(pengaturan.admin_persen || document.getElementById('atur-admin').value) || 15;
+    const p_afiliator = Number(pengaturan.afiliator_persen || document.getElementById('atur-afiliator').value) || 3;
+    const target = Number(pengaturan.target || document.getElementById('atur-target').value) || 5;
 
-    // Hitung rincian
-    const biayaTikTok = gmv * p_tiktok / 100;
-    const biayaPajak = gmv * p_pajak / 100;
+    // Hitung rincian biaya sesuai kalibrasi
+    const biayaHPP = gmv * p_hpp / 100;
+    const biayaAdmin = gmv * p_admin / 100;
     const biayaAfiliator = gmv * p_afiliator / 100;
-    const totalBiaya = iklan + biayaTikTok + biayaPajak + biayaAfiliator + admin + hpp;
+    const totalBiaya = iklan + biayaHPP + biayaAdmin + biayaAfiliator;
     const laba = gmv - totalBiaya;
     const roas = iklan > 0 ? (gmv / iklan).toFixed(1) : 0;
 
@@ -257,7 +330,7 @@ function simpanDataHarian() {
     }
     document.getElementById('kotak-analisis').innerHTML = analisis;
 
-    // Simpan ke penyimpanan bulanan (timpa jika tanggal sudah ada)
+    // Simpan ke penyimpanan bulanan
     let dataBulan = JSON.parse(localStorage.getItem(`data_bulan_${bulanAktif}`) || '{}');
     dataBulan[tanggal] = { gmv, iklan, pesanan, laba, roas, tanggalSimpan: sekarang.toLocaleString('id-ID') };
     localStorage.setItem(`data_bulan_${bulanAktif}`, JSON.stringify(dataBulan));
