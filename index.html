@@ -145,9 +145,9 @@ function bacaFile(input) {
         header: true,
         complete: function(results) {
             const data = results.data[0];
-            const gmv = Number(data['GMV'] || data['Total Pendapatan'] || 0);
-            const biayaIklan = Number(data['Biaya Iklan'] || data['Spend'] || 0);
-            const pesanan = Number(data['Pesanan'] || data['Orders'] || 0);
+           const gmv = Number(data['GMV'] || data['Total Pendapatan'] || data['Gross Merchandise Value'] || data['Total Sales'] || 0);
+const biayaIklan = Number(data['Biaya Iklan'] || data['Spend'] || data['Biaya Iklan GMV Max'] || data['Ad Cost'] || 0);
+const pesanan = Number(data['Pesanan'] || data['Orders'] || data['Jumlah Pesanan'] || data['Order Count'] || 0);
             hitungSemua(gmv, biayaIklan, pesanan);
             alert('✅ File berhasil dibaca! Hasil analisis siap dilihat.');
         }
